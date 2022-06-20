@@ -19,23 +19,27 @@ import net.bytebuddy.matcher.ElementMatcher;
 
 public class ServletAndFilterInstrumentation implements TypeInstrumentation {
   private final String basePackageName;
+  private final String outPutClassName;
   private final String adviceClassName;
   private final String servletInitAdviceClassName;
   private final String filterInitAdviceClassName;
 
   public ServletAndFilterInstrumentation(
       String basePackageName,
+      String outPutClassName,
       String adviceClassName,
       String servletInitAdviceClassName,
       String filterInitAdviceClassName) {
     this.basePackageName = basePackageName;
+    this.outPutClassName = outPutClassName;
     this.adviceClassName = adviceClassName;
     this.servletInitAdviceClassName = servletInitAdviceClassName;
     this.filterInitAdviceClassName = filterInitAdviceClassName;
+    System.out.println("--------------ServletAndFilterInstrumentation-------" + outPutClassName);
   }
 
   public ServletAndFilterInstrumentation(String basePackageName, String adviceClassName) {
-    this(basePackageName, adviceClassName, null, null);
+    this(basePackageName, null, adviceClassName , null, null);
   }
 
   @Override
@@ -45,11 +49,20 @@ public class ServletAndFilterInstrumentation implements TypeInstrumentation {
 
   @Override
   public ElementMatcher<TypeDescription> typeMatcher() {
-    return hasSuperType(namedOneOf(basePackageName + ".Filter", basePackageName + ".Servlet"));
+    System.out.println("typeMatcher--------------ServletAndFilterInstrumentation------- typeMatcher" );
+    return hasSuperType(namedOneOf(basePackageName + ".Filter", basePackageName + ".Servlet", basePackageName + ".ServletOutputStream"));
   }
 
   @Override
   public void transform(TypeTransformer transformer) {
+    System.out.println("--------------ServletAndFilterInstrumentation transform-------");
+    if (outPutClassName != null) {
+      transformer.applyAdviceToMethod(
+          named("write")
+              .and(isPublic()),
+          outPutClassName);
+    }
+
     transformer.applyAdviceToMethod(
         namedOneOf("doFilter", "service")
             .and(takesArgument(0, named(basePackageName + ".ServletRequest")))

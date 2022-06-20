@@ -27,6 +27,7 @@ import net.bytebuddy.implementation.bytecode.assign.Assigner;
 public class Servlet3Advice {
 
   @Advice.OnMethodEnter(suppress = Throwable.class)
+  @SuppressWarnings("SystemOut")
   public static void onEnter(
       @Advice.This(typing = Assigner.Typing.DYNAMIC) Object servletOrFilter,
       @Advice.Argument(value = 0, readOnly = false) ServletRequest request,
@@ -35,6 +36,9 @@ public class Servlet3Advice {
       @Advice.Local("otelRequest") ServletRequestContext<HttpServletRequest> requestContext,
       @Advice.Local("otelContext") Context context,
       @Advice.Local("otelScope") Scope scope) {
+
+//    Thread.dumpStack();
+    System.out.println(" --- Servlet3Advice onEnter --------- ");
 
     if (!(request instanceof HttpServletRequest)
         || !(response instanceof HttpServletResponse

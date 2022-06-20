@@ -34,6 +34,7 @@ public class Servlet3InstrumentationModule extends InstrumentationModule {
 
   @Override
   public List<TypeInstrumentation> typeInstrumentations() {
+    System.out.println("______________typeInstrumentation: servlet3");
     return asList(
         new AsyncContextInstrumentation(BASE_PACKAGE, adviceClassName(".AsyncDispatchAdvice")),
         new AsyncContextStartInstrumentation(
@@ -41,6 +42,7 @@ public class Servlet3InstrumentationModule extends InstrumentationModule {
         new AsyncStartInstrumentation(BASE_PACKAGE, adviceClassName(".Servlet3AsyncStartAdvice")),
         new ServletAndFilterInstrumentation(
             BASE_PACKAGE,
+            adviceClassName(".Servlet3OutputStream"),
             adviceClassName(".Servlet3Advice"),
             adviceClassName(".Servlet3InitAdvice"),
             adviceClassName(".Servlet3FilterInitAdvice")),

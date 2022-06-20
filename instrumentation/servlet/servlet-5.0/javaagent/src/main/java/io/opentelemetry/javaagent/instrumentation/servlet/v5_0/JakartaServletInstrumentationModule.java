@@ -34,6 +34,7 @@ public class JakartaServletInstrumentationModule extends InstrumentationModule {
         new AsyncStartInstrumentation(BASE_PACKAGE, adviceClassName(".async.AsyncStartAdvice")),
         new ServletAndFilterInstrumentation(
             BASE_PACKAGE,
+            null,
             adviceClassName(".service.JakartaServletServiceAdvice"),
             adviceClassName(".service.JakartaServletInitAdvice"),
             adviceClassName(".service.JakartaServletFilterInitAdvice")),
