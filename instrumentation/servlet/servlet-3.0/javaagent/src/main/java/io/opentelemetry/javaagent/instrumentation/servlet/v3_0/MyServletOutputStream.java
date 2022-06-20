@@ -2,7 +2,6 @@
 package com.github.siyuniums;
 
 import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
 import java.io.IOException;
 
 
@@ -14,16 +13,6 @@ public class MyServletOutputStream extends ServletOutputStream {
     private final String SNIPPET = new ReadInjection().readFile();
     public MyServletOutputStream(ServletOutputStream outputStream) {
         this.sp = outputStream;
-    }
-
-    @Override
-    public boolean isReady() {
-        return false;
-    }
-
-    @Override
-    public void setWriteListener(WriteListener writeListener) {
-
     }
 
 
