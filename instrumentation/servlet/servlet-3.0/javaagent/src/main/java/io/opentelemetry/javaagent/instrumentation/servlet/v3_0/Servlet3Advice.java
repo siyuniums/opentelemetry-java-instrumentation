@@ -35,11 +35,13 @@ public class Servlet3Advice {
       @Advice.Local("otelContext") Context context,
       @Advice.Local("otelScope") Scope scope) {
 
-    if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
+    if (!(request instanceof HttpServletRequest)
+        || !(response instanceof HttpServletResponse
+        || response instanceof HttpServletResponseWrapper)) {
       return;
     }
     HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-
+    response = new MyResponseWrapper((HttpServletResponse) response);
     callDepth = CallDepth.forClass(AppServerBridge.getCallDepthKey());
     callDepth.getAndIncrement();
 
@@ -85,7 +87,9 @@ public class Servlet3Advice {
       @Advice.Local("otelContext") Context context,
       @Advice.Local("otelScope") Scope scope) {
 
-    if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
+    if (!(request instanceof HttpServletRequest)
+        || !(response instanceof HttpServletResponse
+        || response instanceof HttpServletResponseWrapper)) {
       return;
     }
 
