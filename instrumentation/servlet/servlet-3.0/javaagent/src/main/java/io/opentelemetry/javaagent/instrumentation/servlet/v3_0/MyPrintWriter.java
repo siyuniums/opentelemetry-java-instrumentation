@@ -1,9 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.Locale;
+
+import java.io.PrintWriter;
 
 public class MyPrintWriter extends PrintWriter {
 
@@ -12,11 +11,13 @@ public class MyPrintWriter extends PrintWriter {
           + " function msg(){ alert(\"TEST TEST\");}\n"
           + "</script>";
 
-    public MyPrintWriter(PrintWriter delegate) {
-        super(delegate);
-    }
 
-    @Override
+
+  public MyPrintWriter(PrintWriter writer) {
+    super(writer);
+  }
+
+  @Override
     public void write(String str) {
         int index = str.indexOf("<head>");
         if (index == -1) {
