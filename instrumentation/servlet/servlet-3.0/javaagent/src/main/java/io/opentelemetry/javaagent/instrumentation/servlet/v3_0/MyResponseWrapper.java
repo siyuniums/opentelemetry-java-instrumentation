@@ -11,14 +11,51 @@ import javax.servlet.http.HttpServletResponseWrapper;
 public class MyResponseWrapper extends HttpServletResponseWrapper {
 
     private OutputStream output;
+    private boolean addInject;
     public MyResponseWrapper(HttpServletResponse response) {
         super(response);
+        addInject = false;
     }
 
   @Override
+  public void setDateHeader(String name, long date) {
+    System.out.println("______ setDateHeader called name: " + name + " date: " + date);
+    super.setDateHeader(name, date);
+  }
+
+  @Override
+  public void addDateHeader(String name, long date) {
+    System.out.println("______ addDateHeader called name: " + name + " date: " + date);
+    super.addDateHeader(name, date);
+  }
+
+  @Override
+  public void setHeader(String name, String value) {
+    System.out.println("______ setHeader called name: " + name + " value: " + value);
+    super.setHeader(name, value);
+  }
+
+  @Override
+  public void addHeader(String name, String value) {
+    if ("Content-Length".equals(name) && !addInject){
+        value = Integer.toString(10 + Integer.valueOf(value));
+        addInject = true;
+      }
+    System.out.println("______ addHeader called name: " + name + " value: " + value);
+    super.addHeader(name, value);
+  }
+
+
+  @Override
   public void setIntHeader(String name, int value) {
-    System.out.println("______ setIntHeader called");
+    System.out.println("______ setIntHeader called name: " + name + " value: " + value);
     super.setIntHeader(name, value);
+  }
+
+  @Override
+  public void addIntHeader(String name, int value) {
+    System.out.println("______ addIntHeader called name: " + name + " value: " + value);
+    super.addIntHeader(name, value);
   }
 
 
@@ -37,7 +74,7 @@ public class MyResponseWrapper extends HttpServletResponseWrapper {
 
   @Override
   public void setContentLength(int len) {
-    System.out.println("setContentLength" + len);
+    System.out.println("______ setContentLength" + len);
     super.setContentLength(len);
   }
 
@@ -50,7 +87,7 @@ public class MyResponseWrapper extends HttpServletResponseWrapper {
 
   @Override
   public void setBufferSize(int size) {
-    System.out.println("setBufferSize" + size);
+    System.out.println("______ setBufferSize" + size);
     super.setBufferSize(size);
   }
 

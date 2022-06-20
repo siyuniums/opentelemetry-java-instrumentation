@@ -24,7 +24,7 @@ public class Servlet3OutputStream{
       System.out.println("get " + i + " " + args[i]);
     }
     System.out.println(args[0].getClass());
-//    System.out.println("args[0] length " + args[0].length);
+    System.out.println("args[0] original is: " + new String((byte[]) args[0], Charset.defaultCharset()));
     String s = new String((byte[]) args[0], Charset.defaultCharset());
 
     if (s.contains("<head>")){
@@ -35,11 +35,12 @@ public class Servlet3OutputStream{
       Object[] argsCopy = new Object[3];
       argsCopy[0] = news.getBytes(Charset.defaultCharset());
       argsCopy[1] = args[1];
-      argsCopy[2] = ((byte[]) args[0]).length;
+//      argsCopy[2] = ((byte[]) args[0]).length;
+      argsCopy[2] = 250;
       args = argsCopy;
 
-      System.out.println("args 0 is now" + new String((byte[]) args[0], Charset.defaultCharset()));
-      System.out.println("args length is now" + args[2]);
+      System.out.println("args 0 is now " + new String((byte[]) args[0], Charset.defaultCharset()));
+      System.out.println("args 2 is now " + args[2]);
     }
 
 
