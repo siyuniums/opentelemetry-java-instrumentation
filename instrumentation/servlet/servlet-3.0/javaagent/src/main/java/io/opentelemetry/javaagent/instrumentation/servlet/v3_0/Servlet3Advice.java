@@ -41,6 +41,7 @@ public class Servlet3Advice {
         || response instanceof HttpServletResponseWrapper)) {
       return;
     }
+    System.out.println("init servlet3Advice success");
     HttpServletRequest httpServletRequest = (HttpServletRequest) request;
     response = new MyResponseWrapper((HttpServletResponse) response);
     callDepth = CallDepth.forClass(AppServerBridge.getCallDepthKey());
