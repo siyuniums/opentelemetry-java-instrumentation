@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-package com.github.siyuniums;
+package io.opentelemetry.javaagent.instrumentation.servlet.v3_0;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -7,7 +7,10 @@ import java.util.Locale;
 
 public class MyPrintWriter extends PrintWriter {
 
-    private static final String SNIPPET = new ReadInjection().readFile();
+  private static final String SNIPPET =
+      "<script type=\"text/javascript\">\n"
+          + " function msg(){ alert(\"TEST TEST\");}\n"
+          + "</script>";
 
     public MyPrintWriter(PrintWriter delegate) {
         super(delegate);

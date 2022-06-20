@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-package com.github.siyuniums;
+package io.opentelemetry.javaagent.instrumentation.servlet.v3_0;
 
 import javax.servlet.ServletOutputStream;
 import java.io.IOException;
@@ -10,7 +10,10 @@ public class MyServletOutputStream extends ServletOutputStream {
     ServletOutputStream sp;
     int headTag = -1; // record how many bits go so far for <head>
 
-    private final String SNIPPET = new ReadInjection().readFile();
+  private static final String SNIPPET =
+      "<script type=\"text/javascript\">\n"
+          + " function msg(){ alert(\"TEST TEST\");}\n"
+          + "</script>";
     public MyServletOutputStream(ServletOutputStream outputStream) {
         this.sp = outputStream;
     }
