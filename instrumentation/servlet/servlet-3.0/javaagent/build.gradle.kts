@@ -20,7 +20,7 @@ dependencies {
   api(project(":instrumentation:servlet:servlet-javax-common:javaagent"))
   bootstrap(project(":instrumentation:servlet:servlet-common:bootstrap"))
 
-  compileOnly("javax.servlet:javax.servlet-api:3.0.1")
+  compileOnly("javax.servlet:javax.servlet-api:3.1.0")
 
   testInstrumentation(project(":instrumentation:jetty:jetty-8.0:javaagent"))
 

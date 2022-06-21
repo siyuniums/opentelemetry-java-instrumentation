@@ -1,17 +1,18 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-package io.opentelemetry.javaagent.instrumentation.servlet.v3_0;
+package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 public class MyResponseWrapper extends HttpServletResponseWrapper {
 
   private OutputStream output;
+
   public MyResponseWrapper(HttpServletResponse response) {
     super(response);
   }
@@ -24,7 +25,7 @@ public class MyResponseWrapper extends HttpServletResponseWrapper {
 
   @Override
   public ServletOutputStream getOutputStream() throws IOException {
-    if (getContentType() != null && getContentType().contains("text/html")){
+    if (getContentType() != null && getContentType().contains("text/html")) {
       MyServletOutputStream myStream = new MyServletOutputStream(super.getOutputStream());
       return myStream;
     } else {
@@ -35,7 +36,7 @@ public class MyResponseWrapper extends HttpServletResponseWrapper {
 
   @Override
   public PrintWriter getWriter() throws IOException {
-    if (getContentType() != null && getContentType().contains("text/html")){
+    if (getContentType() != null && getContentType().contains("text/html")) {
       return new MyPrintWriter(super.getWriter());
     } else {
       return super.getWriter();
@@ -49,5 +50,5 @@ public class MyResponseWrapper extends HttpServletResponseWrapper {
     System.out.println("now content type is set to be" + type);
     super.setContentType(type);
   }
-  
+
 }

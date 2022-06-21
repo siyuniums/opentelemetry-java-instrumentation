@@ -14,12 +14,12 @@ import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import io.opentelemetry.javaagent.bootstrap.servlet.AppServerBridge;
 import io.opentelemetry.javaagent.bootstrap.servlet.MappingResolver;
 import io.opentelemetry.javaagent.instrumentation.servlet.ServletRequestContext;
+import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.MyResponseWrapper;
 import javax.servlet.Servlet;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 
@@ -37,8 +37,7 @@ public class Servlet3Advice {
       @Advice.Local("otelScope") Scope scope) {
 
     if (!(request instanceof HttpServletRequest)
-        || !(response instanceof HttpServletResponse
-        || response instanceof HttpServletResponseWrapper)) {
+        || !(response instanceof HttpServletResponse)) {
       return;
     }
     System.out.println("init servlet3Advice success");
@@ -90,8 +89,7 @@ public class Servlet3Advice {
       @Advice.Local("otelScope") Scope scope) {
 
     if (!(request instanceof HttpServletRequest)
-        || !(response instanceof HttpServletResponse
-        || response instanceof HttpServletResponseWrapper)) {
+        || !(response instanceof HttpServletResponse)) {
       return;
     }
 
