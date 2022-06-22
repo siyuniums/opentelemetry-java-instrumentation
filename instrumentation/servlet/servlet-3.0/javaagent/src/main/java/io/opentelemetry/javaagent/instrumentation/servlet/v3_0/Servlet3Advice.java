@@ -36,13 +36,15 @@ public class Servlet3Advice {
       @Advice.Local("otelContext") Context context,
       @Advice.Local("otelScope") Scope scope) {
 
-    if (!(request instanceof HttpServletRequest)
-        || !(response instanceof HttpServletResponse)) {
+    if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
       return;
     }
     System.out.println("init servlet3Advice success");
     HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-    response = new MyResponseWrapper((HttpServletResponse) response);
+    if (request.getAttribute("snippet-injected") == null) {
+      response = new MyResponseWrapper((HttpServletResponse) response);
+      request.setAttribute("snippet-injected", "true");
+    }
     callDepth = CallDepth.forClass(AppServerBridge.getCallDepthKey());
     callDepth.getAndIncrement();
 
@@ -88,8 +90,7 @@ public class Servlet3Advice {
       @Advice.Local("otelContext") Context context,
       @Advice.Local("otelScope") Scope scope) {
 
-    if (!(request instanceof HttpServletRequest)
-        || !(response instanceof HttpServletResponse)) {
+    if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
       return;
     }
 

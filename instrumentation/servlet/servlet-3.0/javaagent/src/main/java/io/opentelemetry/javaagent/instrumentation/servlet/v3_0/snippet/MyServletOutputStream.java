@@ -5,14 +5,13 @@ import java.io.IOException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 
-
 public class MyServletOutputStream extends ServletOutputStream {
   ServletOutputStream sp;
   int headTag = -1; // record how many bits go so far for <head>
 
   private static final String SNIPPET =
       "<script type=\"text/javascript\">\n"
-          + " function msg(){ alert(\"TEST TEST\");}\n"
+          + " function msg(){ alert(\"TEST HERE\");}\n"
           + "</script>";
 
   public MyServletOutputStream(ServletOutputStream outputStream) {
@@ -42,9 +41,8 @@ public class MyServletOutputStream extends ServletOutputStream {
       for (int i = 0; i < SNIPPET.length(); i++) {
         sp.write((int) SNIPPET.charAt(i));
       }
-
+      System.out.println("--snippet length" + SNIPPET.length());
     }
-
   }
 
   @Override
