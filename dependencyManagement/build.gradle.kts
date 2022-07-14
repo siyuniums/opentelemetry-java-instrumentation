@@ -11,22 +11,21 @@ data class DependencySet(val group: String, val version: String, val modules: Li
 val dependencyVersions = hashMapOf<String, String>()
 rootProject.extra["versions"] = dependencyVersions
 
-val otelVersion = "1.15.0"
+val otelVersion = "1.16.0"
 rootProject.extra["otelVersion"] = otelVersion
 
 // Need both BOM and groovy jars
 val groovyVersion = "4.0.2"
 
 // We don't force libraries we instrument to new versions since we compile and test against specific
-// old baseline versions
-// but we do try to force those libraries' transitive dependencies to new versions where possible
-// so that we don't end up with explosion of dependency versions in Intellij, which causes
-// Intellij to spend lots of time indexing all of those different dependency versions,
-// and makes debugging painful because Intellij has no idea which dependency version's source
-// to use when stepping through code.
+// old baseline versions but we do try to force those libraries' transitive dependencies to new
+// versions where possible so that we don't end up with explosion of dependency versions in
+// Intellij, which causes Intellij to spend lots of time indexing all of those different dependency
+// versions, and makes debugging painful because Intellij has no idea which dependency version's
+// source to use when stepping through code.
 //
-// Sometimes libraries we instrument do require a specific version of a transitive dependency
-// and that can be applied in the specific instrumentation gradle file, e.g.
+// Sometimes libraries we instrument do require a specific version of a transitive dependency and
+// that can be applied in the specific instrumentation gradle file, e.g.
 // configurations.testRuntimeClasspath.resolutionStrategy.force "com.google.guava:guava:19.0"
 
 val DEPENDENCY_BOMS = listOf(
@@ -52,7 +51,7 @@ val DEPENDENCY_SETS = listOf(
   ),
   DependencySet(
     "com.google.errorprone",
-    "2.12.1",
+    "2.14.0",
     listOf("error_prone_annotations", "error_prone_core", "error_prone_test_helpers")
   ),
   DependencySet(
@@ -78,6 +77,9 @@ val DEPENDENCY_SETS = listOf(
   ),
 )
 
+// See the comment above about why we keep this rather large list.
+// There are dependencies included here that appear to have no usages, but are maintained at
+// this top level to help consistently satisfy large numbers of transitive dependencies.
 val DEPENDENCIES = listOf(
   "ch.qos.logback:logback-classic:1.2.11",
   "com.github.stefanbirkner:system-lambda:1.2.1",
