@@ -16,6 +16,8 @@ import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.CAPTURE_PARAMETERS
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.ERROR
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.EXCEPTION
+import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.HTML
+import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.HTML2
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.INDEXED_CHILD
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.NOT_FOUND
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.QUERY_PARAM
@@ -50,6 +52,8 @@ abstract class AbstractServlet3Test<SERVER, CONTEXT> extends HttpServerTest<SERV
     addServlet(context, INDEXED_CHILD.path, servlet)
     addServlet(context, CAPTURE_HEADERS.path, servlet)
     addServlet(context, CAPTURE_PARAMETERS.path, servlet)
+    addServlet(context, HTML.path, servlet)
+    addServlet(context, HTML2.path, servlet)
   }
 
   protected ServerEndpoint lastRequest

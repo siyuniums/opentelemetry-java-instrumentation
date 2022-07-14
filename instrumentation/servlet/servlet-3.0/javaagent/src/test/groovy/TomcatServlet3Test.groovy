@@ -5,6 +5,7 @@
 
 import io.opentelemetry.instrumentation.test.asserts.TraceAssert
 import io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint
+import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder
 import io.opentelemetry.testing.internal.armeria.common.AggregatedHttpResponse
 import org.apache.catalina.AccessLog
 import org.apache.catalina.Context
@@ -30,6 +31,8 @@ import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.CAPTURE_PARAMETERS
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.ERROR
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.EXCEPTION
+import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.HTML
+import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.HTML2
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.INDEXED_CHILD
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.NOT_FOUND
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.QUERY_PARAM
@@ -119,6 +122,51 @@ abstract class TomcatServlet3Test extends AbstractServlet3Test<Tomcat, Context> 
     String name = UUID.randomUUID()
     Tomcat.addServlet(servletContext, name, servlet.newInstance())
     servletContext.addServletMappingDecoded(path, name)
+  }
+
+  def "snippet injection"() {
+    setup:
+    SnippetHolder.setSnippet("\n  <script type=\"text/javascript\"> Test </script>")
+    def request = request(HTML, "GET")
+    def response = client.execute(request).aggregate().join()
+
+    expect:
+    response.status().code() == HTML.status
+    String result = "<!DOCTYPE html>\n" +
+      "<html lang=\"en\">\n" +
+      "<head>\n" +
+      "  <script type=\"text/javascript\"> Test </script>\n" +
+      "  <meta charset=\"UTF-8\">\n" +
+      "  <title>Title</title>\n" +
+      "</head>\n" +
+      "<body>\n" +
+      "\n" +
+      "</body>\n" +
+      "</html>"
+    response.contentUtf8() == result
+  }
+
+  def "snippet injection with ServletOutPutStream"() {
+    setup:
+    SnippetHolder.setSnippet("\n  <script type=\"text/javascript\"> Test </script>")
+    def request = request(HTML2, "GET")
+    def response = client.execute(request).aggregate().join()
+
+    expect:
+    response.status().code() == HTML2.status
+    String result = "<!DOCTYPE html>\n" +
+      "<html lang=\"en\">\n" +
+      "<head>\n" +
+      "  <script type=\"text/javascript\"> Test </script>\n" +
+      "  <meta charset=\"UTF-8\">\n" +
+      "  <title>Title</title>\n" +
+      "</head>\n" +
+      "<body>\n" +
+      "\n" +
+      "</body>\n" +
+      "</html>"
+    response.contentUtf8() == result
+    System.out.println(response.contentUtf8())
   }
 
   def "access log has ids for #count requests"() {
@@ -296,6 +344,7 @@ class TomcatServlet3TestSync extends TomcatServlet3Test {
   Class<Servlet> servlet() {
     TestServlet3.Sync
   }
+
 }
 
 class TomcatServlet3TestAsync extends TomcatServlet3Test {
@@ -304,6 +353,7 @@ class TomcatServlet3TestAsync extends TomcatServlet3Test {
   Class<Servlet> servlet() {
     TestServlet3.Async
   }
+
 
   @Override
   boolean errorEndpointUsesSendError() {
@@ -343,6 +393,8 @@ class TomcatServlet3TestForward extends TomcatDispatchTest {
     addServlet(context, "/dispatch" + CAPTURE_HEADERS.path, RequestDispatcherServlet.Forward)
     addServlet(context, "/dispatch" + CAPTURE_PARAMETERS.path, RequestDispatcherServlet.Forward)
     addServlet(context, "/dispatch" + INDEXED_CHILD.path, RequestDispatcherServlet.Forward)
+    addServlet(context, "/dispatch" + HTML.path, RequestDispatcherServlet.Forward)
+    addServlet(context, "/dispatch" + HTML2.path, RequestDispatcherServlet.Forward)
   }
 }
 
@@ -384,6 +436,8 @@ class TomcatServlet3TestInclude extends TomcatDispatchTest {
     addServlet(context, "/dispatch" + AUTH_REQUIRED.path, RequestDispatcherServlet.Include)
     addServlet(context, "/dispatch" + CAPTURE_PARAMETERS.path, RequestDispatcherServlet.Include)
     addServlet(context, "/dispatch" + INDEXED_CHILD.path, RequestDispatcherServlet.Include)
+    addServlet(context, "/dispatch" + HTML.path, RequestDispatcherServlet.Include)
+    addServlet(context, "/dispatch" + HTML2.path, RequestDispatcherServlet.Include)
   }
 }
 
@@ -411,6 +465,8 @@ class TomcatServlet3TestDispatchImmediate extends TomcatDispatchTest {
     addServlet(context, "/dispatch" + CAPTURE_HEADERS.path, TestServlet3.DispatchImmediate)
     addServlet(context, "/dispatch" + CAPTURE_PARAMETERS.path, TestServlet3.DispatchImmediate)
     addServlet(context, "/dispatch" + INDEXED_CHILD.path, TestServlet3.DispatchImmediate)
+    addServlet(context, "/dispatch" + HTML.path, TestServlet3.DispatchImmediate)
+    addServlet(context, "/dispatch" + HTML2.path, TestServlet3.DispatchImmediate)
     addServlet(context, "/dispatch/recursive", TestServlet3.DispatchRecursive)
   }
 }
@@ -434,6 +490,8 @@ class TomcatServlet3TestDispatchAsync extends TomcatDispatchTest {
     addServlet(context, "/dispatch" + CAPTURE_HEADERS.path, TestServlet3.DispatchAsync)
     addServlet(context, "/dispatch" + CAPTURE_PARAMETERS.path, TestServlet3.DispatchAsync)
     addServlet(context, "/dispatch" + INDEXED_CHILD.path, TestServlet3.DispatchAsync)
+    addServlet(context, "/dispatch" + HTML.path, TestServlet3.DispatchAsync)
+    addServlet(context, "/dispatch" + HTML2.path, TestServlet3.DispatchAsync)
     addServlet(context, "/dispatch/recursive", TestServlet3.DispatchRecursive)
   }
 

@@ -31,8 +31,33 @@ public enum ServerEndpoint {
   AUTH_REQUIRED("authRequired", 200, null),
   LOGIN("login", 302, null),
   AUTH_ERROR("basicsecured/endpoint", 401, null),
-  INDEXED_CHILD("child", 200, "");
-
+  INDEXED_CHILD("child", 200, ""),
+  HTML(
+      "html",
+      200,
+      "<!DOCTYPE html>\n"
+          + "<html lang=\"en\">\n"
+          + "<head>\n"
+          + "  <meta charset=\"UTF-8\">\n"
+          + "  <title>Title</title>\n"
+          + "</head>\n"
+          + "<body>\n"
+          + "\n"
+          + "</body>\n"
+          + "</html>"),
+  HTML2(
+      "html2",
+      200,
+      "<!DOCTYPE html>\n"
+          + "<html lang=\"en\">\n"
+          + "<head>\n"
+          + "  <meta charset=\"UTF-8\">\n"
+          + "  <title>Title</title>\n"
+          + "</head>\n"
+          + "<body>\n"
+          + "\n"
+          + "</body>\n"
+          + "</html>");
   public static final String ID_ATTRIBUTE_NAME = "test.request.id";
   public static final String ID_PARAMETER_NAME = "id";
 
@@ -95,7 +120,7 @@ public enum ServerEndpoint {
    * io.opentelemetry.instrumentation.test.base.HttpServerTest#controller} span (which must be the
    * current span when this is called) based on URL parameters. Required for {@link #INDEXED_CHILD}.
    */
-  public void collectSpanAttributes(ServerEndpoint.UrlParameterProvider parameterProvider) {
+  public void collectSpanAttributes(UrlParameterProvider parameterProvider) {
     if (this == INDEXED_CHILD) {
       String value = parameterProvider.getParameter(ID_PARAMETER_NAME);
 
