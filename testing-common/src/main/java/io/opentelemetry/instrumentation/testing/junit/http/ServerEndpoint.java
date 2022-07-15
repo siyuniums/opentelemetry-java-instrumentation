@@ -58,6 +58,7 @@ public enum ServerEndpoint {
           + "\n"
           + "</body>\n"
           + "</html>");
+
   public static final String ID_ATTRIBUTE_NAME = "test.request.id";
   public static final String ID_PARAMETER_NAME = "id";
 
