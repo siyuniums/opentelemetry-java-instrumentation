@@ -6,7 +6,6 @@ import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.In
 import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectedInfo;
 import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectionObject;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import javax.servlet.ServletOutputStream;
 import net.bytebuddy.asm.Advice;
 
@@ -22,6 +21,5 @@ public class Servlet3OutputStreamWriteBytesAdvice {
     if (info != null) {
       write = info.bits;
     }
-    System.out.println("WRITE bytes: " + new String(write, Charset.defaultCharset()));
   }
 }
