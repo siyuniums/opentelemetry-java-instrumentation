@@ -35,9 +35,6 @@ public class InjectionObject {
   @Nullable
   public InjectedInfo stringInjection(byte[] original, int off, int length)
       throws UnsupportedEncodingException {
-    InjectedInfo info = new InjectedInfo();
-    info.bits = original;
-    info.length = length;
     for (int i = off; i < original.length && i - off < length; i++) {
       intInjection(original[i]);
       if (this.inject()) {
@@ -48,10 +45,12 @@ public class InjectionObject {
         System.arraycopy(
             original, i + 1, buffer, i + 1 + snippetBytes.length, original.length - i - 1);
         this.headTag = -2;
+        InjectedInfo info = new InjectedInfo();
         info.bits = buffer;
         info.length = length + snippetBytes.length;
+        return info;
       }
     }
-    return info;
+    return null;
   }
 }

@@ -16,6 +16,7 @@ public class Servlet3OutputStreamWriteIntAdvice {
       @Advice.This ServletOutputStream servletOutputStream,
       @Advice.Argument(value = 0, readOnly = false) int write,
       @Advice.Local("injectObj") InjectionObject injectObj) {
+    System.out.println("WRITE INT: " + (char) write);
     injectObj = getInjectionObject(servletOutputStream);
     injectObj.intInjection((byte) write);
   }
@@ -27,6 +28,7 @@ public class Servlet3OutputStreamWriteIntAdvice {
       throws IOException {
     if (injectObj.inject()) {
       // inject happen here
+      System.out.println("injecting snippet");
       servletOutputStream.print(SnippetHolder.getSnippet());
     }
   }

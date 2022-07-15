@@ -16,6 +16,7 @@ import io.opentelemetry.javaagent.instrumentation.servlet.common.async.AsyncCont
 import io.opentelemetry.javaagent.instrumentation.servlet.common.async.AsyncStartInstrumentation;
 import io.opentelemetry.javaagent.instrumentation.servlet.common.response.HttpServletResponseInstrumentation;
 import io.opentelemetry.javaagent.instrumentation.servlet.common.service.ServletAndFilterInstrumentation;
+import io.opentelemetry.javaagent.instrumentation.servlet.common.service.ServletOutputStreamInstrumentation;
 import java.util.List;
 import net.bytebuddy.matcher.ElementMatcher;
 
