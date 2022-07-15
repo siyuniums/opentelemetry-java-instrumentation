@@ -121,7 +121,7 @@ public enum ServerEndpoint {
    * io.opentelemetry.instrumentation.test.base.HttpServerTest#controller} span (which must be the
    * current span when this is called) based on URL parameters. Required for {@link #INDEXED_CHILD}.
    */
-  public void collectSpanAttributes(UrlParameterProvider parameterProvider) {
+  public void collectSpanAttributes(ServerEndpoint.UrlParameterProvider parameterProvider) {
     if (this == INDEXED_CHILD) {
       String value = parameterProvider.getParameter(ID_PARAMETER_NAME);
 
