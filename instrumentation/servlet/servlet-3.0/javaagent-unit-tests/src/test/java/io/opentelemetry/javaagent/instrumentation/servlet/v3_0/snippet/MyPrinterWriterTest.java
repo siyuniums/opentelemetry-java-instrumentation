@@ -13,7 +13,7 @@ import java.io.StringWriter;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 
-class MyPrinterWriterTest {
+class SnippetInjectingResponseWrapperTest {
 
   @Test
   void testInjectToTextHtml() throws IOException {
