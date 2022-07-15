@@ -38,9 +38,9 @@ class InjectionTest {
     byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
     InjectionObject obj = new InjectionObject();
     InjectedInfo info = obj.stringInjection(originalBytes, 0, originalBytes.length);
+
     assertThat(obj.headTagBytesSeen).isEqualTo(-1);
-    assertThat(info.bits).isEqualTo(original.getBytes(StandardCharsets.UTF_8));
-    assertThat(info.length).isEqualTo(originalBytes.length);
+    assertThat(info).isNull();
   }
 
   @Test
@@ -54,8 +54,7 @@ class InjectionTest {
     InjectedInfo info =
         obj.stringInjection(originalFirstPartBytes, 0, originalFirstPartBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(2);
-    assertThat(info.bits).isEqualTo(originalFirstPart.getBytes(StandardCharsets.UTF_8));
-    assertThat(info.length).isEqualTo(originalFirstPartBytes.length);
+    assertThat(info).isNull();
 
     String originalSecondPart =
         "ad>\n"
