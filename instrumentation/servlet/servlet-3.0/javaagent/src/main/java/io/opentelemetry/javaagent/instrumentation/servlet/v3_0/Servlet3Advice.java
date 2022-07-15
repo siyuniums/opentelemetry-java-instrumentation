@@ -42,6 +42,7 @@ public class Servlet3Advice {
       return;
     }
     HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+
     boolean hasWrapped = ((HttpServletResponse) response).containsHeader(FAKE_SNIPPET_HEADER);
     if (!hasWrapped && !SnippetHolder.getSnippet().isEmpty()) {
       response = new SnippetInjectingResponseWrapper((HttpServletResponse) response);
