@@ -43,8 +43,8 @@ public class Servlet3Advice {
     }
     HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
-    boolean hasWrapped = ((HttpServletResponse) response).containsHeader(FAKE_SNIPPET_HEADER);
-    if (!hasWrapped && !SnippetHolder.getSnippet().isEmpty()) {
+    if (!SnippetHolder.getSnippet().isEmpty()
+        && !((HttpServletResponse) response).containsHeader(FAKE_SNIPPET_HEADER)) {
       response = new SnippetInjectingResponseWrapper((HttpServletResponse) response);
     }
     callDepth = CallDepth.forClass(AppServerBridge.getCallDepthKey());

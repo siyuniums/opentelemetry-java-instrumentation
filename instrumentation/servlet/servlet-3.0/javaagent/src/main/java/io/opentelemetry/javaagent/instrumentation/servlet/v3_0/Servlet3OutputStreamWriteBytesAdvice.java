@@ -2,7 +2,6 @@
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0;
 
 import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.getInjectionObject;
-import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.stringInjection;
 
 import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectedInfo;
 import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectionObject;
@@ -18,7 +17,7 @@ public class Servlet3OutputStreamWriteBytesAdvice {
       @Advice.Argument(value = 0, readOnly = false) byte[] write)
       throws UnsupportedEncodingException {
     InjectionObject obj = getInjectionObject(servletOutputStream);
-    InjectedInfo info = stringInjection(write, 0, write.length, obj);
+    InjectedInfo info = obj.stringInjection(write, 0, write.length);
     write = info.bits;
   }
 }

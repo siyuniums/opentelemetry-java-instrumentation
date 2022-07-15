@@ -1,13 +1,12 @@
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
+import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.TestUtil.readFile;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import javax.servlet.http.HttpServletResponse;
@@ -62,16 +61,5 @@ class SnippetInjectingResponseWrapperTest {
     writer.close();
     // check whether new response == correct answer
     assertThat(result).isEqualTo(original);
-  }
-
-  private static String readFile(String resourceName) throws IOException {
-    InputStream is = MyPrinterWriterTest.class.getClassLoader().getResourceAsStream(resourceName);
-    ByteArrayOutputStream result = new ByteArrayOutputStream();
-    byte[] buffer = new byte[1024];
-    int length;
-    while ((length = is.read(buffer)) != -1) {
-      result.write(buffer, 0, length);
-    }
-    return result.toString("UTF-8");
   }
 }

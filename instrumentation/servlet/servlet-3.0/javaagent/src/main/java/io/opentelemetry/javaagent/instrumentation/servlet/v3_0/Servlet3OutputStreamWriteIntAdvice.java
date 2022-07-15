@@ -4,7 +4,6 @@ package io.opentelemetry.javaagent.instrumentation.servlet.v3_0;
 import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.getInjectionObject;
 
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
-import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection;
 import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectionObject;
 import java.io.IOException;
 import javax.servlet.ServletOutputStream;
@@ -18,7 +17,7 @@ public class Servlet3OutputStreamWriteIntAdvice {
       @Advice.Argument(value = 0, readOnly = false) int write,
       @Advice.Local("injectObj") InjectionObject injectObj) {
     injectObj = getInjectionObject(servletOutputStream);
-    Injection.intInjection((byte) write, injectObj);
+    injectObj.intInjection((byte) write);
   }
 
   @Advice.OnMethodExit(onThrowable = Throwable.class, suppress = Throwable.class)

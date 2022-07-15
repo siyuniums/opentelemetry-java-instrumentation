@@ -20,20 +20,19 @@ import net.bytebuddy.matcher.ElementMatcher;
 
 public class ServletOutputStreamInstrumentation implements TypeInstrumentation {
   private final String basePackageName;
-  private final String servlet3OutputStreamWriteBytesAndOffsetClassName;
-  private final String servlet3OutputStreamWriteBytesClassName;
-  private final String servlet3OutputStreamWriteIntAdviceClassName;
+  private final String writeBytesAndOffsetClassName;
+  private final String writeBytesClassName;
+  private final String writeIntAdviceClassName;
 
   public ServletOutputStreamInstrumentation(
       String basePackageName,
-      String servlet3OutputStreamWriteBytesAndOffsetClassName,
-      String servlet3OutputStreamWriteBytesClassName,
-      String servlet3OutputStreamWriteIntAdviceClassName) {
+      String writeBytesAndOffsetClassName,
+      String writeBytesClassName,
+      String writeIntAdviceClassName) {
     this.basePackageName = basePackageName;
-    this.servlet3OutputStreamWriteBytesAndOffsetClassName =
-        servlet3OutputStreamWriteBytesAndOffsetClassName;
-    this.servlet3OutputStreamWriteBytesClassName = servlet3OutputStreamWriteBytesClassName;
-    this.servlet3OutputStreamWriteIntAdviceClassName = servlet3OutputStreamWriteIntAdviceClassName;
+    this.writeBytesAndOffsetClassName = writeBytesAndOffsetClassName;
+    this.writeBytesClassName = writeBytesClassName;
+    this.writeIntAdviceClassName = writeIntAdviceClassName;
   }
 
   @Override
@@ -55,12 +54,10 @@ public class ServletOutputStreamInstrumentation implements TypeInstrumentation {
             .and(takesArgument(1, int.class))
             .and(takesArgument(2, int.class))
             .and(isPublic()),
-        servlet3OutputStreamWriteBytesAndOffsetClassName);
+        writeBytesAndOffsetClassName);
     transformer.applyAdviceToMethod(
-        named("write").and(takesArgument(0, byte[].class)).and(isPublic()),
-        servlet3OutputStreamWriteBytesClassName);
+        named("write").and(takesArgument(0, byte[].class)).and(isPublic()), writeBytesClassName);
     transformer.applyAdviceToMethod(
-        named("write").and(takesArgument(0, int.class)).and(isPublic()),
-        servlet3OutputStreamWriteIntAdviceClassName);
+        named("write").and(takesArgument(0, int.class)).and(isPublic()), writeIntAdviceClassName);
   }
 }

@@ -1,9 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
-import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.intInjection;
-
-import io.opentelemetry.instrumentation.api.util.VirtualField;
 import java.io.PrintWriter;
 
 public class SnippetInjectingPrintWriter extends PrintWriter {
@@ -17,9 +14,6 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
     super(writer);
     obj.characterEncoding = characterEncoding;
     obj.headTag = -1;
-    System.out.println("writer" + writer + writer.getClass());
-    VirtualField.find(PrintWriter.class, InjectionObject.class).set(writer, obj);
-    System.out.println("set vf SnippetInjectingPrintWriter");
     this.snippet = snippet;
   }
 
@@ -33,7 +27,7 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
 
   @Override
   public void write(int b) {
-    intInjection((byte) b, obj);
+    obj.intInjection((byte) b);
     super.write(b);
     if (obj.inject()) {
       // begin to insert
