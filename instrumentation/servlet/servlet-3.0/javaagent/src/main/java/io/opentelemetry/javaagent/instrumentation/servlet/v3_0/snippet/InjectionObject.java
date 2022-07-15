@@ -5,31 +5,31 @@ import java.io.UnsupportedEncodingException;
 import javax.annotation.Nullable;
 
 public class InjectionObject {
-  public int headTag = -1;
+  public int headTagBytesSeen = -1;
   public String characterEncoding;
 
   public boolean inject() {
-    return headTag == 5;
+    return headTagBytesSeen == 5;
   }
 
   public void intInjection(byte b) {
-    int headTag = this.headTag;
-    if (headTag == -1 && b == '<') {
-      headTag = 0;
-    } else if (headTag == 0 && b == 'h') {
-      headTag = 1;
-    } else if (headTag == 1 && b == 'e') {
-      headTag = 2;
-    } else if (headTag == 2 && b == 'a') {
-      headTag = 3;
-    } else if (headTag == 3 && b == 'd') {
-      headTag = 4;
-    } else if (headTag == 4 && b == '>') {
-      headTag = 5;
-    } else if (b > 0 && headTag != -2) {
-      headTag = -1;
+    int headTagBytesSeen = this.headTagBytesSeen;
+    if (headTagBytesSeen == -1 && b == '<') {
+      headTagBytesSeen = 0;
+    } else if (headTagBytesSeen == 0 && b == 'h') {
+      headTagBytesSeen = 1;
+    } else if (headTagBytesSeen == 1 && b == 'e') {
+      headTagBytesSeen = 2;
+    } else if (headTagBytesSeen == 2 && b == 'a') {
+      headTagBytesSeen = 3;
+    } else if (headTagBytesSeen == 3 && b == 'd') {
+      headTagBytesSeen = 4;
+    } else if (headTagBytesSeen == 4 && b == '>') {
+      headTagBytesSeen = 5;
+    } else if (b > 0 && headTagBytesSeen != -2) {
+      headTagBytesSeen = -1;
     }
-    this.headTag = headTag;
+    this.headTagBytesSeen = headTagBytesSeen;
   }
 
   @Nullable
@@ -44,7 +44,7 @@ public class InjectionObject {
         System.arraycopy(snippetBytes, 0, buffer, i + 1, snippetBytes.length);
         System.arraycopy(
             original, i + 1, buffer, i + 1 + snippetBytes.length, original.length - i - 1);
-        this.headTag = -2;
+        this.headTagBytesSeen = -2;
         InjectedInfo info = new InjectedInfo();
         info.bits = buffer;
         info.length = length + snippetBytes.length;
