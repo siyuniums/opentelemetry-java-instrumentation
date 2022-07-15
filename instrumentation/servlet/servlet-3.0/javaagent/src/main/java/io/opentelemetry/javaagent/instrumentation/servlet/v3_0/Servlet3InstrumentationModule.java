@@ -46,9 +46,9 @@ public class Servlet3InstrumentationModule extends InstrumentationModule {
             adviceClassName(".Servlet3FilterInitAdvice")),
         new ServletOutputStreamInstrumentation(
             BASE_PACKAGE,
-            adviceClassName(".Servlet3OutputStreamAdvice"),
-            adviceClassName(".Servlet3OutputStreamByteWriteAdvice"),
-            adviceClassName(".Servlet3OutputStreamIntWriteAdvice")),
+            adviceClassName(".Servlet3OutputStreamWriteBytesAndOffsetAdvice"),
+            adviceClassName(".Servlet3OutputStreamWriteBytesAdvice"),
+            adviceClassName(".Servlet3OutputStreamWriteIntAdvice")),
         new HttpServletResponseInstrumentation(
             BASE_PACKAGE, adviceClassName(".Servlet3ResponseSendAdvice")));
   }

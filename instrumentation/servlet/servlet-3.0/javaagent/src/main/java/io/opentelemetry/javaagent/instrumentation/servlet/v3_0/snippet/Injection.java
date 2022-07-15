@@ -3,6 +3,7 @@ package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 import io.opentelemetry.instrumentation.api.util.VirtualField;
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
 import java.io.UnsupportedEncodingException;
+import javax.annotation.Nullable;
 import javax.servlet.ServletOutputStream;
 
 public class Injection {
@@ -25,24 +26,28 @@ public class Injection {
         .set(servletOutputStream, obj);
   }
 
-  public static void stringInjection(byte[] original, int off, int length, InjectionObject obj)
+  @Nullable
+  public static InjectedInfo stringInjection(
+      byte[] original, int off, int length, InjectionObject obj)
       throws UnsupportedEncodingException {
-    obj.bits = original;
-    obj.length = length;
+    InjectedInfo info = new InjectedInfo();
+    info.bits = original;
+    info.length = length;
     for (int i = off; i < original.length && i - off < length; i++) {
       intInjection(original[i], obj);
-      if (obj.inject) {
+      if (obj.inject()) {
         byte[] snippetBytes = SnippetHolder.getSnippetBytes(obj.characterEncoding);
-        byte[] buffer = new byte[original.length + snippetBytes.length];
-        System.arraycopy(original, 0, buffer, 0, i + 1);
+        byte[] buffer = new byte[length + snippetBytes.length];
+        System.arraycopy(original, off, buffer, 0, i + 1);
         System.arraycopy(snippetBytes, 0, buffer, i + 1, snippetBytes.length);
         System.arraycopy(
             original, i + 1, buffer, i + 1 + snippetBytes.length, original.length - i - 1);
-        obj.inject = false;
-        obj.bits = buffer;
-        obj.length = length + snippetBytes.length;
+        obj.headTag = -2;
+        info.bits = buffer;
+        info.length = length + snippetBytes.length;
       }
     }
+    return info;
   }
 
   public static void intInjection(byte b, InjectionObject injectObj) {
@@ -58,12 +63,9 @@ public class Injection {
     } else if (headTag == 3 && b == 'd') {
       headTag = 4;
     } else if (headTag == 4 && b == '>') {
-      injectObj.inject = true;
-      headTag = -2; // inject happens
+      headTag = 5;
     } else if (b > 0 && headTag != -2) {
       headTag = -1;
-    } else if (headTag == -2) {
-      injectObj.inject = false;
     }
     injectObj.headTag = headTag;
   }

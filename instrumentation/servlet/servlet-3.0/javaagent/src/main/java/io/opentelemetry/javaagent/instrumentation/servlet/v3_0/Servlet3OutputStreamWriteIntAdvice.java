@@ -10,7 +10,7 @@ import java.io.IOException;
 import javax.servlet.ServletOutputStream;
 import net.bytebuddy.asm.Advice;
 
-public class Servlet3OutputStreamIntWriteAdvice {
+public class Servlet3OutputStreamWriteIntAdvice {
 
   @Advice.OnMethodEnter(suppress = Throwable.class)
   public static void methodEnter(
@@ -26,7 +26,7 @@ public class Servlet3OutputStreamIntWriteAdvice {
       @Advice.This ServletOutputStream servletOutputStream,
       @Advice.Local("injectObj") InjectionObject injectObj)
       throws IOException {
-    if (injectObj.inject) {
+    if (injectObj.inject()) {
       // inject happen here
       servletOutputStream.print(SnippetHolder.getSnippet());
     }

@@ -344,7 +344,6 @@ class TomcatServlet3TestSync extends TomcatServlet3Test {
   Class<Servlet> servlet() {
     TestServlet3.Sync
   }
-
 }
 
 class TomcatServlet3TestAsync extends TomcatServlet3Test {
@@ -353,7 +352,6 @@ class TomcatServlet3TestAsync extends TomcatServlet3Test {
   Class<Servlet> servlet() {
     TestServlet3.Async
   }
-
 
   @Override
   boolean errorEndpointUsesSendError() {

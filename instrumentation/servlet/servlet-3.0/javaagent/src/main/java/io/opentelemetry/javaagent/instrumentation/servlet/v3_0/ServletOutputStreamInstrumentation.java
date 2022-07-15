@@ -20,21 +20,20 @@ import net.bytebuddy.matcher.ElementMatcher;
 
 public class ServletOutputStreamInstrumentation implements TypeInstrumentation {
   private final String basePackageName;
-  private final String servletOutputClassName;
-
-  private final String servletOutputByteWriteClassName;
-  private final String servletOutputIntWriteClassName;
+  private final String servlet3OutputStreamWriteBytesAndOffsetClassName;
+  private final String servlet3OutputStreamWriteBytesClassName;
+  private final String servlet3OutputStreamWriteIntAdviceClassName;
 
   public ServletOutputStreamInstrumentation(
       String basePackageName,
-      String servletOutputClassName,
-      String servletOutputByteWriteClassName,
-      String servletOutputIntWriteClassName) {
+      String servlet3OutputStreamWriteBytesAndOffsetClassName,
+      String servlet3OutputStreamWriteBytesClassName,
+      String servlet3OutputStreamWriteIntAdviceClassName) {
     this.basePackageName = basePackageName;
-
-    this.servletOutputClassName = servletOutputClassName;
-    this.servletOutputByteWriteClassName = servletOutputByteWriteClassName;
-    this.servletOutputIntWriteClassName = servletOutputIntWriteClassName;
+    this.servlet3OutputStreamWriteBytesAndOffsetClassName =
+        servlet3OutputStreamWriteBytesAndOffsetClassName;
+    this.servlet3OutputStreamWriteBytesClassName = servlet3OutputStreamWriteBytesClassName;
+    this.servlet3OutputStreamWriteIntAdviceClassName = servlet3OutputStreamWriteIntAdviceClassName;
   }
 
   @Override
@@ -56,12 +55,12 @@ public class ServletOutputStreamInstrumentation implements TypeInstrumentation {
             .and(takesArgument(1, int.class))
             .and(takesArgument(2, int.class))
             .and(isPublic()),
-        servletOutputClassName);
+        servlet3OutputStreamWriteBytesAndOffsetClassName);
     transformer.applyAdviceToMethod(
         named("write").and(takesArgument(0, byte[].class)).and(isPublic()),
-        servletOutputByteWriteClassName);
+        servlet3OutputStreamWriteBytesClassName);
     transformer.applyAdviceToMethod(
         named("write").and(takesArgument(0, int.class)).and(isPublic()),
-        servletOutputIntWriteClassName);
+        servlet3OutputStreamWriteIntAdviceClassName);
   }
 }

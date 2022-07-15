@@ -16,19 +16,8 @@ import org.junit.jupiter.api.Test;
 
 class MyPrinterWriterTest {
 
-  public String readFile(String resourceName) throws IOException {
-    InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName);
-    ByteArrayOutputStream result = new ByteArrayOutputStream();
-    byte[] buffer = new byte[1024];
-    int length;
-    while ((length = is.read(buffer)) != -1) {
-      result.write(buffer, 0, length);
-    }
-    return result.toString("UTF-8");
-  }
-
   @Test
-  public void shouldInjectToTextHtml() throws IOException {
+  void shouldInjectToTextHtml() throws IOException {
 
     // read the originalFile
     String original = readFile("staticHtmlOrigin.html");
@@ -59,7 +48,7 @@ class MyPrinterWriterTest {
   }
 
   @Test
-  public void shouldNotInjectToTextHtml() throws IOException {
+  void shouldNotInjectToTextHtml() throws IOException {
 
     // read the originalFile
     String original = readFile("staticHtmlOrigin.html");
@@ -89,7 +78,7 @@ class MyPrinterWriterTest {
   }
 
   @Test
-  public void testPrinterWriter() throws IOException {
+  void testPrinterWriter() throws IOException {
 
     // read the originalFile
     String original = readFile("staticHtmlOrigin.html");
@@ -112,5 +101,16 @@ class MyPrinterWriterTest {
     writer.close();
     // check whether new response == correct answer
     assertThat(result).isEqualTo(correct);
+  }
+
+  private static String readFile(String resourceName) throws IOException {
+    InputStream is = MyPrinterWriterTest.class.getClassLoader().getResourceAsStream(resourceName);
+    ByteArrayOutputStream result = new ByteArrayOutputStream();
+    byte[] buffer = new byte[1024];
+    int length;
+    while ((length = is.read(buffer)) != -1) {
+      result.write(buffer, 0, length);
+    }
+    return result.toString("UTF-8");
   }
 }

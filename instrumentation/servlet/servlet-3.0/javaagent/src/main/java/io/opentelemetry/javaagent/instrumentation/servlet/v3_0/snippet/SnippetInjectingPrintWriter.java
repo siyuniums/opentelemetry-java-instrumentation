@@ -33,7 +33,7 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
   public void write(int b) {
     intInjection((byte) b, obj);
     super.write(b);
-    if (obj.inject) {
+    if (obj.inject()) {
       // begin to insert
       super.write(this.snippet);
     }
