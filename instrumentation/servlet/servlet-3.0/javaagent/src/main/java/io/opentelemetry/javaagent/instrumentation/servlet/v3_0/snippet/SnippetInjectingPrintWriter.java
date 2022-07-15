@@ -17,7 +17,9 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
     super(writer);
     obj.characterEncoding = characterEncoding;
     obj.headTag = -1;
+    System.out.println("writer" + writer + writer.getClass());
     VirtualField.find(PrintWriter.class, InjectionObject.class).set(writer, obj);
+    System.out.println("set vf SnippetInjectingPrintWriter");
     this.snippet = snippet;
   }
 
