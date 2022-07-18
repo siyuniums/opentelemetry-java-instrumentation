@@ -37,7 +37,11 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
     if (contentType != null
         && contentType.contains("text/html")
         && "Content-Length".equalsIgnoreCase(name)) {
-      value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
+      try {
+        value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
+      } catch (NumberFormatException ex) {
+        System.err.println("Invalid string format");
+      }
     }
     super.setHeader(name, value);
   }
@@ -49,7 +53,11 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
     if (contentType != null
         && contentType.contains("text/html")
         && "Content-Length".equalsIgnoreCase(name)) {
-      value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
+      try {
+        value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
+      } catch (NumberFormatException ex) {
+        System.err.println("Invalid string format");
+      }
     }
     super.addHeader(name, value);
   }
