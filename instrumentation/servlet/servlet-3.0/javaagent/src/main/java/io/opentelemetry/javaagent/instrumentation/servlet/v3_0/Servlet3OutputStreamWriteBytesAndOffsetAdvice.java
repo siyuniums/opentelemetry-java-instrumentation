@@ -10,9 +10,8 @@ import javax.servlet.ServletOutputStream;
 import net.bytebuddy.asm.Advice;
 
 public class Servlet3OutputStreamWriteBytesAndOffsetAdvice {
-
-  @Advice.OnMethodEnter(suppress = Throwable.class)
-  public static void methodEnter(
+  @Advice.OnMethodEnter(skipOn = Advice.OnDefaultValue.class, suppress = Throwable.class)
+  public static boolean methodEnter(
       @Advice.This ServletOutputStream servletOutputStream,
       @Advice.Argument(value = 0, readOnly = false) byte[] write,
       @Advice.Argument(1) int off,
@@ -21,8 +20,9 @@ public class Servlet3OutputStreamWriteBytesAndOffsetAdvice {
     InjectionObject obj = getInjectionObject(servletOutputStream);
     InjectedInfo info = obj.stringInjection(write, off, len);
     if (info != null) {
-      write = info.bits;
+      write = info.bytes;
       len = info.length;
     }
+    return false;
   }
 }

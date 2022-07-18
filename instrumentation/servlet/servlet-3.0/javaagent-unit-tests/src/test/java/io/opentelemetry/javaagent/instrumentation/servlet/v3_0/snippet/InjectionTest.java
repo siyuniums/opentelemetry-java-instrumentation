@@ -22,7 +22,7 @@ class InjectionTest {
     InjectionObject obj = new InjectionObject();
     InjectedInfo info = obj.stringInjection(originalBytes, 0, originalBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-2);
-    assertThat(info.bits).isEqualTo(correct.getBytes(StandardCharsets.UTF_8));
+    assertThat(info.bytes).isEqualTo(correct.getBytes(StandardCharsets.UTF_8));
     assertThat(info.length)
         .isEqualTo(originalBytes.length + testSnippet.getBytes(StandardCharsets.UTF_8).length);
     assertThat(info.length).isEqualTo(correct.getBytes(StandardCharsets.UTF_8).length);
@@ -80,7 +80,7 @@ class InjectionTest {
             + "</body>\n"
             + "</html>";
 
-    assertThat(new String(info.bits, StandardCharsets.UTF_8)).isEqualTo(correctSecondPart);
+    assertThat(new String(info.bytes, StandardCharsets.UTF_8)).isEqualTo(correctSecondPart);
     assertThat(info.length)
         .isEqualTo(
             originalSecondPartBytes.length + testSnippet.getBytes(StandardCharsets.UTF_8).length);

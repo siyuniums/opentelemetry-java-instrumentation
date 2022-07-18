@@ -19,7 +19,7 @@ public class Servlet3OutputStreamWriteBytesAdvice {
     InjectionObject obj = getInjectionObject(servletOutputStream);
     InjectedInfo info = obj.stringInjection(write, 0, write.length);
     if (info != null) {
-      write = info.bits;
+      write = info.bytes;
     }
   }
 }

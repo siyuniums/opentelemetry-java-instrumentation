@@ -5,9 +5,6 @@ import java.io.PrintWriter;
 
 public class SnippetInjectingPrintWriter extends PrintWriter {
   private final String snippet;
-
-  //  private int headTagBytesSeen = -1; // record how many bits go so far for <head>
-  //  private String characterEncoding;
   private final InjectionObject obj = new InjectionObject();
 
   public SnippetInjectingPrintWriter(PrintWriter writer, String snippet, String characterEncoding) {

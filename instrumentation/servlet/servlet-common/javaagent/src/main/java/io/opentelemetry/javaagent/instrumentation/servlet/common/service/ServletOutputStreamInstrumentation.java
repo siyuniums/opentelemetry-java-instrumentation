@@ -56,8 +56,10 @@ public class ServletOutputStreamInstrumentation implements TypeInstrumentation {
             .and(isPublic()),
         writeBytesAndOffsetClassName);
     transformer.applyAdviceToMethod(
-        named("write").and(takesArgument(0, byte[].class)).and(isPublic()), writeBytesClassName);
+        named("write").and(takesArguments(1)).and(takesArgument(0, byte[].class)).and(isPublic()),
+        writeBytesClassName);
     transformer.applyAdviceToMethod(
-        named("write").and(takesArgument(0, int.class)).and(isPublic()), writeIntAdviceClassName);
+        named("write").and(takesArguments(1)).and(takesArgument(0, int.class)).and(isPublic()),
+        writeIntAdviceClassName);
   }
 }

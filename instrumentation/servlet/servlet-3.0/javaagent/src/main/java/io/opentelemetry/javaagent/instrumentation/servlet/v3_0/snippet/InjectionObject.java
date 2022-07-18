@@ -46,7 +46,7 @@ public class InjectionObject {
             original, i + 1, buffer, i + 1 + snippetBytes.length, original.length - i - 1);
         this.headTagBytesSeen = -2;
         InjectedInfo info = new InjectedInfo();
-        info.bits = buffer;
+        info.bytes = buffer;
         info.length = length + snippetBytes.length;
         return info;
       }
