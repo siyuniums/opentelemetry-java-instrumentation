@@ -3,28 +3,25 @@ package io.opentelemetry.javaagent.instrumentation.servlet.v3_0;
 
 import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.getInjectionObject;
 
-import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectedInfo;
 import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectionObject;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import javax.servlet.ServletOutputStream;
 import net.bytebuddy.asm.Advice;
 
 public class Servlet3OutputStreamWriteBytesAndOffsetAdvice {
   @Advice.OnMethodEnter(suppress = Throwable.class)
-  public static boolean methodEnter(
+  public static void methodEnter(
       @Advice.This ServletOutputStream servletOutputStream,
       @Advice.Argument(value = 0, readOnly = false) byte[] write,
-      @Advice.Argument(1) int off,
+      @Advice.Argument(value = 1, readOnly = false) int off,
       @Advice.Argument(value = 2, readOnly = false) int len)
       throws UnsupportedEncodingException {
-    System.out.println(
-        "inside print BytesAndOffsetAdvice" + new String(write, Charset.defaultCharset()));
     InjectionObject obj = getInjectionObject(servletOutputStream);
-    InjectedInfo info = obj.stringInjection(write, off, len);
-    if (info != null) {
-      write = info.bytes;
-      len = info.length;
+    byte[] result = obj.stringInjection(write, off, len);
+    if (result != null) {
+      write = result;
+      len = result.length;
+      off = 0;
     }
   }
 }

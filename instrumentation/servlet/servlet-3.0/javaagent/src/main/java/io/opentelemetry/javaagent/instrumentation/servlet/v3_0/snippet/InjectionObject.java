@@ -2,6 +2,7 @@ package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import javax.annotation.Nullable;
 
 public class InjectionObject {
@@ -33,22 +34,22 @@ public class InjectionObject {
   }
 
   @Nullable
-  public InjectedInfo stringInjection(byte[] original, int off, int length)
+  public byte[] stringInjection(byte[] original, int off, int length)
       throws UnsupportedEncodingException {
-    for (int i = off; i < original.length && i - off < length; i++) {
+    for (int i = off; i < length && i - off < length; i++) {
       intInjection(original[i]);
+      System.out.println((char) original[i] + " " + this.headTagBytesSeen);
       if (this.inject()) {
         byte[] snippetBytes = SnippetHolder.getSnippetBytes(this.characterEncoding);
-        byte[] buffer = new byte[length + snippetBytes.length];
+        byte[] buffer = new byte[length + snippetBytes.length - off];
         System.arraycopy(original, off, buffer, 0, i + 1);
         System.arraycopy(snippetBytes, 0, buffer, i + 1, snippetBytes.length);
-        System.arraycopy(
-            original, i + 1, buffer, i + 1 + snippetBytes.length, original.length - i - 1);
+        System.arraycopy(original, i + 1, buffer, i + 1 + snippetBytes.length, length - i - 1);
         this.headTagBytesSeen = -2;
-        InjectedInfo info = new InjectedInfo();
-        info.bytes = buffer;
-        info.length = length + snippetBytes.length;
-        return info;
+        System.out.println(
+            "inject " + buffer.length + "\n" + new String(buffer, Charset.defaultCharset()));
+
+        return buffer;
       }
     }
     return null;

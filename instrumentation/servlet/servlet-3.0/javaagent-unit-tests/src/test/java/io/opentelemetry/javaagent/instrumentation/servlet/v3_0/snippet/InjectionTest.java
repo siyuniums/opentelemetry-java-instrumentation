@@ -20,12 +20,12 @@ class InjectionTest {
     String correct = readFile("staticHtmlAfter.html");
     byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
     InjectionObject obj = new InjectionObject();
-    InjectedInfo info = obj.stringInjection(originalBytes, 0, originalBytes.length);
+    byte[] result = obj.stringInjection(originalBytes, 0, originalBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-2);
-    assertThat(info.bytes).isEqualTo(correct.getBytes(StandardCharsets.UTF_8));
-    assertThat(info.length)
+    assertThat(result).isEqualTo(correct.getBytes(StandardCharsets.UTF_8));
+    assertThat(result.length)
         .isEqualTo(originalBytes.length + testSnippet.getBytes(StandardCharsets.UTF_8).length);
-    assertThat(info.length).isEqualTo(correct.getBytes(StandardCharsets.UTF_8).length);
+    assertThat(result.length).isEqualTo(correct.getBytes(StandardCharsets.UTF_8).length);
   }
 
   @Test
@@ -37,10 +37,10 @@ class InjectionTest {
 
     byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
     InjectionObject obj = new InjectionObject();
-    InjectedInfo info = obj.stringInjection(originalBytes, 0, originalBytes.length);
+    byte[] result = obj.stringInjection(originalBytes, 0, originalBytes.length);
 
     assertThat(obj.headTagBytesSeen).isEqualTo(-1);
-    assertThat(info).isNull();
+    assertThat(result).isNull();
   }
 
   @Test
@@ -51,10 +51,9 @@ class InjectionTest {
     String originalFirstPart = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "<he";
     byte[] originalFirstPartBytes = originalFirstPart.getBytes(StandardCharsets.UTF_8);
     InjectionObject obj = new InjectionObject();
-    InjectedInfo info =
-        obj.stringInjection(originalFirstPartBytes, 0, originalFirstPartBytes.length);
+    byte[] result = obj.stringInjection(originalFirstPartBytes, 0, originalFirstPartBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(2);
-    assertThat(info).isNull();
+    assertThat(result).isNull();
 
     String originalSecondPart =
         "ad>\n"
@@ -66,7 +65,7 @@ class InjectionTest {
             + "</body>\n"
             + "</html>";
     byte[] originalSecondPartBytes = originalSecondPart.getBytes(StandardCharsets.UTF_8);
-    info = obj.stringInjection(originalSecondPartBytes, 0, originalSecondPartBytes.length);
+    result = obj.stringInjection(originalSecondPartBytes, 0, originalSecondPartBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-2);
 
     String correctSecondPart =
@@ -80,8 +79,8 @@ class InjectionTest {
             + "</body>\n"
             + "</html>";
 
-    assertThat(new String(info.bytes, StandardCharsets.UTF_8)).isEqualTo(correctSecondPart);
-    assertThat(info.length)
+    assertThat(new String(result, StandardCharsets.UTF_8)).isEqualTo(correctSecondPart);
+    assertThat(result.length)
         .isEqualTo(
             originalSecondPartBytes.length + testSnippet.getBytes(StandardCharsets.UTF_8).length);
   }

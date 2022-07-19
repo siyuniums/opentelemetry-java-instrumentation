@@ -140,9 +140,10 @@ abstract class TomcatServlet3Test extends AbstractServlet3Test<Tomcat, Context> 
       "  <title>Title</title>\n" +
       "</head>\n" +
       "<body>\n" +
-      "\n" +
+      "<p>test works</p>\n" +
       "</body>\n" +
       "</html>"
+    response.headers().contentLength() == result.length();
     response.contentUtf8() == result
   }
 
@@ -154,6 +155,7 @@ abstract class TomcatServlet3Test extends AbstractServlet3Test<Tomcat, Context> 
 
     expect:
     response.status().code() == HTML2.status
+    // check response content-length header
     String result = "<!DOCTYPE html>\n" +
       "<html lang=\"en\">\n" +
       "<head>\n" +
@@ -162,7 +164,7 @@ abstract class TomcatServlet3Test extends AbstractServlet3Test<Tomcat, Context> 
       "  <title>Title</title>\n" +
       "</head>\n" +
       "<body>\n" +
-      "\n" +
+      "<p>test works</p>\n" +
       "</body>\n" +
       "</html>"
     response.contentUtf8() == result

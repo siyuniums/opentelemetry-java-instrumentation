@@ -6,7 +6,11 @@ import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.In
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import javax.annotation.Nullable;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
@@ -33,6 +37,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
 
   @Override
   public void setHeader(String name, String value) {
+    System.out.println("set header" + name + " " + value);
     String contentType = super.getContentType();
     if (contentType != null
         && contentType.contains("text/html")
@@ -48,7 +53,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
 
   @Override
   public void addHeader(String name, String value) {
-
+    System.out.println("addHeader " + name + " " + value);
     String contentType = super.getContentType();
     if (contentType != null
         && contentType.contains("text/html")
@@ -59,42 +64,78 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
         System.err.println("Invalid string format");
       }
     }
+    System.out.println("addHeader " + name + " " + value);
     super.addHeader(name, value);
   }
 
   @Override
   public void setIntHeader(String name, int value) {
-
+    System.out.println("setIntHeader" + name + " " + value);
     String contentType = super.getContentType();
     if (contentType != null
         && contentType.contains("text/html")
         && "Content-Length".equalsIgnoreCase(name)) {
       value = SNIPPET_LENGTH + value;
     }
+    System.out.println("setIntHeader" + name + " " + value);
+
     super.setIntHeader(name, value);
   }
 
   @Override
   public void addIntHeader(String name, int value) {
     String contentType = super.getContentType();
+    System.out.println("addIntHeader" + name + " " + value);
     if (contentType != null
         && contentType.contains("text/html")
         && "Content-Length".equalsIgnoreCase(name)) {
+
       value = SNIPPET_LENGTH + value;
     }
+    System.out.println("addIntHeader" + name + " " + value);
+
     super.addIntHeader(name, value);
   }
 
   @Override
   public void setContentLength(int len) {
     String contentType = super.getContentType();
+    System.out.println("setContentLength" + len);
     if (contentType != null && contentType.contains("text/html")) {
+
       len = len + SNIPPET_LENGTH;
     }
+    System.out.println("setContentLength" + len);
     super.setContentLength(len);
   }
 
-  // TODO: support setContentLengthLong
+  @Nullable
+  private static final Method setContentLengthLongMethod = getSetContentLengthLongMethod();
+
+  private static Method getSetContentLengthLongMethod() {
+    try {
+      return ServletResponse.class.getMethod("setContentLengthLong", int.class);
+    } catch (NoSuchMethodException e) {
+      return null;
+    }
+  }
+
+  public void setContentLengthLong(int len) {
+    System.out.println("setContentLengthLongMethod" + len);
+    if (setContentLengthLongMethod == null) {
+      throw new IllegalStateException("could not find setContentLengthLong method");
+    }
+    try {
+      String contentType = super.getContentType();
+      if (contentType != null && contentType.contains("text/html")) {
+        len = len + SNIPPET_LENGTH;
+      }
+      System.out.println("setContentLengthLongMethod" + len);
+      setContentLengthLongMethod.invoke(this, len);
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
 
   @Override
   public ServletOutputStream getOutputStream() throws IOException {

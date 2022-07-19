@@ -42,7 +42,7 @@ public enum ServerEndpoint {
           + "  <title>Title</title>\n"
           + "</head>\n"
           + "<body>\n"
-          + "\n"
+          + "<p>test works</p>\n"
           + "</body>\n"
           + "</html>"),
   HTML2(
@@ -55,7 +55,7 @@ public enum ServerEndpoint {
           + "  <title>Title</title>\n"
           + "</head>\n"
           + "<body>\n"
-          + "\n"
+          + "<p>test works</p>\n"
           + "</body>\n"
           + "</html>");
 

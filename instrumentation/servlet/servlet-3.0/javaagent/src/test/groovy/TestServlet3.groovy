@@ -3,8 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+
 import io.opentelemetry.instrumentation.test.base.HttpServerTest
 import io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint
+
 import javax.servlet.RequestDispatcher
 import javax.servlet.ServletException
 import javax.servlet.annotation.WebServlet
@@ -75,11 +77,18 @@ class TestServlet3 {
           case HTML:
             resp.contentType = "text/html"
             resp.status = endpoint.status
+            resp.setContentLength(136)
             resp.writer.print(endpoint.body)
             break
           case HTML2:
             resp.contentType = "text/html"
             resp.status = endpoint.status
+            try {
+              resp.setContentLengthLong(55)
+            } catch (Exception e) {
+              // servlet 3.0
+              resp.setContentLength(55)
+            }
             byte[] check = endpoint.body.getBytes()
             resp.getOutputStream().write(check, 0, check.length)
             break
