@@ -168,7 +168,7 @@ abstract class TomcatServlet3Test extends AbstractServlet3Test<Tomcat, Context> 
       "</body>\n" +
       "</html>"
     response.contentUtf8() == result
-    System.out.println(response.contentUtf8())
+    response.headers().contentLength() == result.length();
   }
 
   def "access log has ids for #count requests"() {

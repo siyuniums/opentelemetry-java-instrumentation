@@ -84,10 +84,10 @@ class TestServlet3 {
             resp.contentType = "text/html"
             resp.status = endpoint.status
             try {
-              resp.setContentLengthLong(55)
+              resp.setContentLengthLong(136)
             } catch (Exception e) {
               // servlet 3.0
-              resp.setContentLength(55)
+              resp.setContentLength(136)
             }
             byte[] check = endpoint.body.getBytes()
             resp.getOutputStream().write(check, 0, check.length)

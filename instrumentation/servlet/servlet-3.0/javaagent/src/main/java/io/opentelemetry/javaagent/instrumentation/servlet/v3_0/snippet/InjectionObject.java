@@ -38,7 +38,6 @@ public class InjectionObject {
       throws UnsupportedEncodingException {
     for (int i = off; i < length && i - off < length; i++) {
       intInjection(original[i]);
-      System.out.println((char) original[i] + " " + this.headTagBytesSeen);
       if (this.inject()) {
         byte[] snippetBytes = SnippetHolder.getSnippetBytes(this.characterEncoding);
         byte[] buffer = new byte[length + snippetBytes.length - off];
@@ -48,7 +47,6 @@ public class InjectionObject {
         this.headTagBytesSeen = -2;
         System.out.println(
             "inject " + buffer.length + "\n" + new String(buffer, Charset.defaultCharset()));
-
         return buffer;
       }
     }
