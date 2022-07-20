@@ -6,11 +6,11 @@ import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.In
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import javax.annotation.Nullable;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
@@ -53,7 +53,6 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
 
   @Override
   public void addHeader(String name, String value) {
-    System.out.println("addHeader " + name + " " + value);
     String contentType = super.getContentType();
     if (contentType != null
         && contentType.contains("text/html")
@@ -109,31 +108,33 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
     super.setContentLength(len);
   }
 
-  @Nullable
-  private static final Method setContentLengthLongMethod = getSetContentLengthLongMethod();
+  @Nullable private static final MethodHandle setContentLengthLongHandler = getMethodHandle();
 
-  private static Method getSetContentLengthLongMethod() {
+  @Nullable
+  private static MethodHandle getMethodHandle() {
     try {
-      return ServletResponse.class.getMethod("setContentLengthLong", int.class);
-    } catch (NoSuchMethodException e) {
+      return MethodHandles.lookup()
+          .findSpecial(
+              HttpServletResponseWrapper.class,
+              "setContentLengthLong",
+              MethodType.methodType(void.class),
+              SnippetInjectingResponseWrapper.class);
+    } catch (NoSuchMethodException | IllegalAccessException e) {
+      System.out.println(e);
       return null;
     }
   }
 
-  public void setContentLengthLong(int len) {
-    System.out.println("setContentLengthLongMethod" + len);
-    if (setContentLengthLongMethod == null) {
-      throw new IllegalStateException("could not find setContentLengthLong method");
+  public void setContentLengthLong(long length) throws Throwable {
+    String contentType = super.getContentType();
+    if (contentType != null && contentType.contains("text/html")) {
+      length = length + SNIPPET_LENGTH;
     }
-    try {
-      String contentType = super.getContentType();
-      if (contentType != null && contentType.contains("text/html")) {
-        len = len + SNIPPET_LENGTH;
-      }
-      System.out.println("setContentLengthLongMethod" + len);
-      setContentLengthLongMethod.invoke(this, len);
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new IllegalArgumentException(e);
+    if (setContentLengthLongHandler == null) {
+      System.out.println("didn't find setContentLengthLong function");
+      super.setContentLength((int) length);
+    } else {
+      setContentLengthLongHandler.invokeWithArguments(this, length);
     }
   }
 
