@@ -37,7 +37,6 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
 
   @Override
   public void setHeader(String name, String value) {
-    System.out.println("set header" + name + " " + value);
     String contentType = super.getContentType();
     if (contentType != null
         && contentType.contains("text/html")
@@ -63,48 +62,38 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
         System.err.println("Invalid string format");
       }
     }
-    System.out.println("addHeader " + name + " " + value);
     super.addHeader(name, value);
   }
 
   @Override
   public void setIntHeader(String name, int value) {
-    System.out.println("setIntHeader" + name + " " + value);
     String contentType = super.getContentType();
     if (contentType != null
         && contentType.contains("text/html")
         && "Content-Length".equalsIgnoreCase(name)) {
       value = SNIPPET_LENGTH + value;
     }
-    System.out.println("setIntHeader" + name + " " + value);
-
     super.setIntHeader(name, value);
   }
 
   @Override
   public void addIntHeader(String name, int value) {
     String contentType = super.getContentType();
-    System.out.println("addIntHeader" + name + " " + value);
     if (contentType != null
         && contentType.contains("text/html")
         && "Content-Length".equalsIgnoreCase(name)) {
 
       value = SNIPPET_LENGTH + value;
     }
-    System.out.println("addIntHeader" + name + " " + value);
-
     super.addIntHeader(name, value);
   }
 
   @Override
   public void setContentLength(int len) {
     String contentType = super.getContentType();
-    System.out.println("setContentLength" + len);
     if (contentType != null && contentType.contains("text/html")) {
-
       len = len + SNIPPET_LENGTH;
     }
-    System.out.println("setContentLength" + len);
     super.setContentLength(len);
   }
 
