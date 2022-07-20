@@ -40,7 +40,6 @@ public class InjectionObject {
     intInjectionHelper(b);
     if (inject()) {
       headTagBytesSeen = -2;
-      System.out.println("int injected");
       sp.write(b);
       byte[] snippetBytes = SnippetHolder.getSnippetBytes(this.characterEncoding);
       sp.write(snippetBytes);
