@@ -24,7 +24,7 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
 
   @Override
   public void write(int b) {
-    obj.intInjection((byte) b);
+    obj.intInjectionHelper((byte) b);
     super.write(b);
     if (obj.inject()) {
       // begin to insert

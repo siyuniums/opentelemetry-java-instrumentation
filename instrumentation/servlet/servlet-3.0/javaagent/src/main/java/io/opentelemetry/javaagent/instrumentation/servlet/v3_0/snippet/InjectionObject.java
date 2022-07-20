@@ -1,9 +1,8 @@
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import javax.annotation.Nullable;
+import java.io.IOException;
+import javax.servlet.ServletOutputStream;
 
 public class InjectionObject {
   public int headTagBytesSeen = -1;
@@ -13,7 +12,11 @@ public class InjectionObject {
     return headTagBytesSeen == 5;
   }
 
-  public void intInjection(byte b) {
+  public boolean injected() {
+    return headTagBytesSeen == -2;
+  }
+
+  public void intInjectionHelper(byte b) {
     int headTagBytesSeen = this.headTagBytesSeen;
     if (headTagBytesSeen == -1 && b == '<') {
       headTagBytesSeen = 0;
@@ -33,23 +36,38 @@ public class InjectionObject {
     this.headTagBytesSeen = headTagBytesSeen;
   }
 
-  @Nullable
-  public byte[] stringInjection(byte[] original, int off, int length)
-      throws UnsupportedEncodingException {
-    for (int i = off; i < length && i - off < length; i++) {
-      intInjection(original[i]);
-      if (this.inject()) {
-        byte[] snippetBytes = SnippetHolder.getSnippetBytes(this.characterEncoding);
-        byte[] buffer = new byte[length + snippetBytes.length - off];
-        System.arraycopy(original, off, buffer, 0, i + 1);
-        System.arraycopy(snippetBytes, 0, buffer, i + 1, snippetBytes.length);
-        System.arraycopy(original, i + 1, buffer, i + 1 + snippetBytes.length, length - i - 1);
-        this.headTagBytesSeen = -2;
-        System.out.println(
-            "inject " + buffer.length + "\n" + new String(buffer, Charset.defaultCharset()));
-        return buffer;
+  public boolean intInjection(ServletOutputStream sp, byte b) throws IOException {
+    intInjectionHelper(b);
+    if (inject()) {
+      headTagBytesSeen = -2;
+      System.out.println("int injected");
+      sp.write(b);
+      byte[] snippetBytes = SnippetHolder.getSnippetBytes(this.characterEncoding);
+      sp.write(snippetBytes);
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  public boolean stringInjection(ServletOutputStream sp, byte[] original, int off, int length)
+      throws IOException {
+    int i;
+    for (i = off; i < length && i - off < length; i++) {
+      intInjectionHelper(original[i]);
+      if (inject()) {
+        break;
       }
     }
-    return null;
+    if (inject()) {
+      headTagBytesSeen = -2;
+      sp.write(original, off, i + 1);
+      byte[] snippetBytes = SnippetHolder.getSnippetBytes(this.characterEncoding);
+      sp.write(snippetBytes);
+      sp.write(original, i + 1, length - i - 1);
+      return false;
+    } else {
+      return true;
+    }
   }
 }
