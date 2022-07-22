@@ -114,6 +114,21 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
     }
   }
 
+  private boolean shouldInject() {
+    boolean shouldInject = true;
+    if (!super.containsHeader("content-type")) {
+      shouldInject = false;
+    }
+    String contentType = super.getContentType();
+    if (contentType == null || !contentType.contains("text/html")) {
+      shouldInject = false;
+    }
+    if (super.getStatus() != 200) {
+      shouldInject = false;
+    }
+    return shouldInject;
+  }
+
   public void setContentLengthLong(long length) throws Throwable {
     String contentType = super.getContentType();
     if (contentType != null && contentType.contains("text/html")) {

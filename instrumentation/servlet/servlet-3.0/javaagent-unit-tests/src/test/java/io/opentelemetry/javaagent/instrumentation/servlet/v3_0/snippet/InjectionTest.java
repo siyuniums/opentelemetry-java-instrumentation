@@ -42,35 +42,35 @@ class InjectionTest {
     assertThat(result).isEqualTo(correct);
   }
 
-  @Test
-  void testInjectionForChinese() throws IOException {
-    String testSnippet = "\n  <script type=\"text/javascript\"> Test </script>";
-    SnippetHolder.setSnippet(testSnippet);
-    // read the originalFile
-    String original = readFile("staticHtmlChineseOrigin.html");
-    // read the correct answer
-    String correct = readFile("staticHtmlChineseAfter.html");
-    byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
-    InjectionObject obj = new InjectionObject();
-
-    StringWriter writer = new StringWriter();
-
-    ServletOutputStream sp =
-        new ServletOutputStream() {
-          @Override
-          public void write(int b) throws IOException {
-            writer.write(b);
-          }
-        };
-    boolean injected = !obj.stringInjection(sp, originalBytes, 0, originalBytes.length);
-    assertThat(obj.headTagBytesSeen).isEqualTo(-2);
-    assertThat(injected).isEqualTo(true);
-    writer.flush();
-
-    String result = writer.toString();
-    writer.close();
-    assertThat(result).isEqualTo(correct);
-  }
+  //  @Test
+  //  void testInjectionForChinese() throws IOException {
+  //    String testSnippet = "\n  <script type=\"text/javascript\"> Test </script>";
+  //    SnippetHolder.setSnippet(testSnippet);
+  //    // read the originalFile
+  //    String original = readFile("staticHtmlChineseOrigin.html");
+  //    // read the correct answer
+  //    String correct = readFile("staticHtmlChineseAfter.html");
+  //    byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
+  //    InjectionObject obj = new InjectionObject();
+  //
+  //    StringWriter writer = new StringWriter();
+  //
+  //    ServletOutputStream sp =
+  //        new ServletOutputStream() {
+  //          @Override
+  //          public void write(int b) throws IOException {
+  //            writer.write(b);
+  //          }
+  //        };
+  //    boolean injected = !obj.stringInjection(sp, originalBytes, 0, originalBytes.length);
+  //    assertThat(obj.headTagBytesSeen).isEqualTo(-2);
+  //    assertThat(injected).isEqualTo(true);
+  //    writer.flush();
+  //
+  //    String result = writer.toString();
+  //    writer.close();
+  //    assertThat(result).isEqualTo(correct);
+  //  }
 
   @Test
   void testInjectionForStringWithoutHeadTag() throws IOException {
