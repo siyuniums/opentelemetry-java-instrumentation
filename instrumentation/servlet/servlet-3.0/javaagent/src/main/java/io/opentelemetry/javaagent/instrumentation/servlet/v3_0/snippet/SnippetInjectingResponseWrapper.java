@@ -128,6 +128,15 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   }
 
   @Override
+  public String getCharacterEncoding() {
+    String characterEncoding = super.getCharacterEncoding();
+    if (characterEncoding == null) {
+      characterEncoding = "UTF-8";
+    }
+    return characterEncoding;
+  }
+
+  @Override
   public ServletOutputStream getOutputStream() throws IOException {
     ServletOutputStream output = super.getOutputStream();
     InjectionObject obj = getInjectionObject(output);

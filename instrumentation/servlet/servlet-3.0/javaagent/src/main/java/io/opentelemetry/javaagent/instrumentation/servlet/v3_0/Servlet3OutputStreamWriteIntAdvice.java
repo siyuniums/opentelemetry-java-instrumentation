@@ -15,12 +15,11 @@ public class Servlet3OutputStreamWriteIntAdvice {
       @Advice.This ServletOutputStream servletOutputStream,
       @Advice.Argument(value = 0, readOnly = false) int write)
       throws IOException {
-    InjectionObject injectObj = getInjectionObject(servletOutputStream);
-    System.out.println("IntAdvice- " + (char) write);
-    if (injectObj.injected()) {
+    InjectionObject obj = getInjectionObject(servletOutputStream);
+    if (obj.injected() || obj.characterEncoding == null) {
       return true;
     } else {
-      boolean injected = injectObj.intInjection(servletOutputStream, (byte) write);
+      boolean injected = obj.intInjection(servletOutputStream, (byte) write);
       return injected;
     }
   }

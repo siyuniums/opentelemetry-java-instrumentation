@@ -5,7 +5,6 @@ import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.In
 
 import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectionObject;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import javax.servlet.ServletOutputStream;
 import net.bytebuddy.asm.Advice;
 
@@ -18,11 +17,7 @@ public class Servlet3OutputStreamWriteBytesAndOffsetAdvice {
       @Advice.Argument(value = 2, readOnly = false) int len)
       throws IOException {
     InjectionObject obj = getInjectionObject(servletOutputStream);
-    System.out.println(
-        "- " + new String(write, Charset.defaultCharset()).substring(off, off + len) + " enter");
-    if (obj.injected()) {
-      System.out.println(
-          "- " + new String(write, Charset.defaultCharset()).substring(off, off + len) + " write");
+    if (obj.injected() || obj.characterEncoding == null) {
       return true;
     } else {
       boolean result = obj.stringInjection(servletOutputStream, write, off, len);
