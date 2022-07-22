@@ -27,8 +27,8 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   public boolean containsHeader(String name) {
     // override this function in order to make sure the response is wrapped
     // but not wrapped twice
-    // we didn't use the traditional method req.setattribute because
-    // async may carry out the old req and new resp without wrapped
+    // we didn't use the traditional method req.setattribute
+    // because async may carry out the old req and new resp without wrapped
     if (name.equals(FAKE_SNIPPET_HEADER)) {
       return true;
     }
