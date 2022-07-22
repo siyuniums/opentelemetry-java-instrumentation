@@ -5,7 +5,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import javax.servlet.ServletOutputStream;
 import org.junit.jupiter.api.Test;
 
 class InjectionTest {
@@ -20,12 +22,54 @@ class InjectionTest {
     String correct = readFile("staticHtmlAfter.html");
     byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
     InjectionObject obj = new InjectionObject();
-    byte[] result = obj.stringInjection(originalBytes, 0, originalBytes.length);
+
+    StringWriter writer = new StringWriter();
+
+    ServletOutputStream sp =
+        new ServletOutputStream() {
+          @Override
+          public void write(int b) throws IOException {
+            writer.write(b);
+          }
+        };
+    boolean injected = !obj.stringInjection(sp, originalBytes, 0, originalBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-2);
-    assertThat(result).isEqualTo(correct.getBytes(StandardCharsets.UTF_8));
-    assertThat(result.length)
-        .isEqualTo(originalBytes.length + testSnippet.getBytes(StandardCharsets.UTF_8).length);
-    assertThat(result.length).isEqualTo(correct.getBytes(StandardCharsets.UTF_8).length);
+    assertThat(injected).isEqualTo(true);
+    writer.flush();
+
+    String result = writer.toString();
+    writer.close();
+    assertThat(result).isEqualTo(correct);
+  }
+
+  @Test
+  void testInjectionForChinese() throws IOException {
+    String testSnippet = "\n  <script type=\"text/javascript\"> Test </script>";
+    SnippetHolder.setSnippet(testSnippet);
+    // read the originalFile
+    String original = readFile("staticHtmlChineseOrigin.html");
+    // read the correct answer
+    String correct = readFile("staticHtmlChineseAfter.html");
+    byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
+    InjectionObject obj = new InjectionObject();
+
+    StringWriter writer = new StringWriter();
+
+    ServletOutputStream sp =
+        new ServletOutputStream() {
+          @Override
+          public void write(int b) throws IOException {
+            writer.write(b);
+          }
+        };
+    boolean injected = !obj.stringInjection(sp, originalBytes, 0, originalBytes.length);
+    assertThat(obj.headTagBytesSeen).isEqualTo(-2);
+    assertThat(injected).isEqualTo(true);
+    writer.flush();
+
+    String result = writer.toString();
+    writer.close();
+    assertThat(result).isEqualTo(correct);
   }
 
   @Test
@@ -37,10 +81,22 @@ class InjectionTest {
 
     byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
     InjectionObject obj = new InjectionObject();
-    byte[] result = obj.stringInjection(originalBytes, 0, originalBytes.length);
+    StringWriter writer = new StringWriter();
 
+    ServletOutputStream sp =
+        new ServletOutputStream() {
+          @Override
+          public void write(int b) throws IOException {
+            writer.write(b);
+          }
+        };
+    boolean injected = !obj.stringInjection(sp, originalBytes, 0, originalBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-1);
-    assertThat(result).isNull();
+    assertThat(injected).isEqualTo(false);
+    writer.flush();
+    String result = writer.toString();
+    writer.close();
+    assertThat(result).isEqualTo("");
   }
 
   @Test
@@ -51,10 +107,23 @@ class InjectionTest {
     String originalFirstPart = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "<he";
     byte[] originalFirstPartBytes = originalFirstPart.getBytes(StandardCharsets.UTF_8);
     InjectionObject obj = new InjectionObject();
-    byte[] result = obj.stringInjection(originalFirstPartBytes, 0, originalFirstPartBytes.length);
-    assertThat(obj.headTagBytesSeen).isEqualTo(2);
-    assertThat(result).isNull();
+    StringWriter writer = new StringWriter();
 
+    ServletOutputStream sp =
+        new ServletOutputStream() {
+          @Override
+          public void write(int b) throws IOException {
+            writer.write(b);
+          }
+        };
+    boolean injected =
+        !obj.stringInjection(sp, originalFirstPartBytes, 0, originalFirstPartBytes.length);
+
+    writer.flush();
+    String result = writer.toString();
+    assertThat(obj.headTagBytesSeen).isEqualTo(2);
+    assertThat(result).isEqualTo("");
+    assertThat(injected).isEqualTo(false);
     String originalSecondPart =
         "ad>\n"
             + "  <meta charset=\"UTF-8\">\n"
@@ -65,9 +134,9 @@ class InjectionTest {
             + "</body>\n"
             + "</html>";
     byte[] originalSecondPartBytes = originalSecondPart.getBytes(StandardCharsets.UTF_8);
-    result = obj.stringInjection(originalSecondPartBytes, 0, originalSecondPartBytes.length);
+    injected = !obj.stringInjection(sp, originalSecondPartBytes, 0, originalSecondPartBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-2);
-
+    assertThat(injected).isEqualTo(true);
     String correctSecondPart =
         "ad>\n"
             + "  <script type=\"text/javascript\"> Test </script>\n"
@@ -78,10 +147,8 @@ class InjectionTest {
             + "\n"
             + "</body>\n"
             + "</html>";
-
-    assertThat(new String(result, StandardCharsets.UTF_8)).isEqualTo(correctSecondPart);
-    assertThat(result.length)
-        .isEqualTo(
-            originalSecondPartBytes.length + testSnippet.getBytes(StandardCharsets.UTF_8).length);
+    writer.flush();
+    result = writer.toString();
+    assertThat(result).isEqualTo(correctSecondPart);
   }
 }

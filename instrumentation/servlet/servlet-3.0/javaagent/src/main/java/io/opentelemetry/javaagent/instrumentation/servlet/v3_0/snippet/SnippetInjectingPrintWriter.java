@@ -26,7 +26,6 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
   public void write(int b) {
     obj.intInjectionHelper((byte) b);
     super.write(b);
-    System.out.println("-- " + (char) b);
     if (obj.inject()) {
       // begin to insert
       obj.headTagBytesSeen = -2;
