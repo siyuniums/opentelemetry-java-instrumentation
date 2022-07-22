@@ -18,9 +18,6 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
   public void write(String s, int off, int len) {
     for (int i = off; i < s.length() && i - off < len; i++) {
       char b = s.charAt(i);
-      //      if (obj.injected()) {
-      //        System.out.println(" ");
-      //      }
       write(b);
     }
   }
