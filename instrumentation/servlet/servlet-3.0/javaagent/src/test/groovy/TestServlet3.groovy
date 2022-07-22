@@ -168,11 +168,13 @@ class TestServlet3 {
                 resp.contentType = "text/html"
                 resp.status = endpoint.status
                 resp.writer.print(endpoint.body)
+                resp.setContentLength(136)
                 context.complete()
                 break
               case HTML2:
                 resp.contentType = "text/html"
                 resp.status = endpoint.status
+                resp.setContentLengthLong(136)
                 resp.getOutputStream().print(endpoint.body)
                 context.complete()
                 break

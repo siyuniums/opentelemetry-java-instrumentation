@@ -37,10 +37,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
 
   @Override
   public void setHeader(String name, String value) {
-    String contentType = super.getContentType();
-    if (contentType != null
-        && contentType.contains("text/html")
-        && "Content-Length".equalsIgnoreCase(name)) {
+    if (shouldInject() && "Content-Length".equalsIgnoreCase(name)) {
       try {
         value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
       } catch (NumberFormatException ex) {
@@ -52,10 +49,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
 
   @Override
   public void addHeader(String name, String value) {
-    String contentType = super.getContentType();
-    if (contentType != null
-        && contentType.contains("text/html")
-        && "Content-Length".equalsIgnoreCase(name)) {
+    if (shouldInject() && "Content-Length".equalsIgnoreCase(name)) {
       try {
         value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
       } catch (NumberFormatException ex) {
@@ -67,10 +61,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
 
   @Override
   public void setIntHeader(String name, int value) {
-    String contentType = super.getContentType();
-    if (contentType != null
-        && contentType.contains("text/html")
-        && "Content-Length".equalsIgnoreCase(name)) {
+    if (shouldInject() && "Content-Length".equalsIgnoreCase(name)) {
       value = SNIPPET_LENGTH + value;
     }
     super.setIntHeader(name, value);
@@ -78,11 +69,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
 
   @Override
   public void addIntHeader(String name, int value) {
-    String contentType = super.getContentType();
-    if (contentType != null
-        && contentType.contains("text/html")
-        && "Content-Length".equalsIgnoreCase(name)) {
-
+    if (shouldInject() && "Content-Length".equalsIgnoreCase(name)) {
       value = SNIPPET_LENGTH + value;
     }
     super.addIntHeader(name, value);
@@ -90,8 +77,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
 
   @Override
   public void setContentLength(int len) {
-    String contentType = super.getContentType();
-    if (contentType != null && contentType.contains("text/html")) {
+    if (shouldInject()) {
       len = len + SNIPPET_LENGTH;
     }
     super.setContentLength(len);
@@ -130,8 +116,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   }
 
   public void setContentLengthLong(long length) throws Throwable {
-    String contentType = super.getContentType();
-    if (contentType != null && contentType.contains("text/html")) {
+    if (shouldInject()) {
       length = length + SNIPPET_LENGTH;
     }
     if (setContentLengthLongHandler == null) {
@@ -156,13 +141,16 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
     ServletOutputStream output = super.getOutputStream();
     InjectionObject obj = getInjectionObject(output);
     obj.characterEncoding = getCharacterEncoding();
+    if (obj.wrapper == null || obj.wrapper != this) { // now I am a new response
+      obj.headTagBytesSeen = -1;
+      obj.wrapper = this;
+    }
     return output;
   }
 
   @Override
   public PrintWriter getWriter() throws IOException {
-    String contentType = super.getContentType();
-    if (contentType != null && contentType.contains("text/html")) {
+    if (shouldInject()) {
       return new SnippetInjectingPrintWriter(super.getWriter(), SNIPPET, getCharacterEncoding());
     } else {
       return super.getWriter();

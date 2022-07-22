@@ -7,6 +7,7 @@ import javax.servlet.ServletOutputStream;
 public class InjectionObject {
   public int headTagBytesSeen = -1;
   public String characterEncoding;
+  public SnippetInjectingResponseWrapper wrapper;
 
   public boolean inject() {
     return headTagBytesSeen == 5;
