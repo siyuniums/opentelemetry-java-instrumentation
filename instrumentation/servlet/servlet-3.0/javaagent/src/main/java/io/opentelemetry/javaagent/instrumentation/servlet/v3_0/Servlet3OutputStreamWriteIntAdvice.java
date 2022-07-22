@@ -16,6 +16,7 @@ public class Servlet3OutputStreamWriteIntAdvice {
       @Advice.Argument(value = 0, readOnly = false) int write)
       throws IOException {
     InjectionObject injectObj = getInjectionObject(servletOutputStream);
+    System.out.println("IntAdvice- " + (char) write);
     if (injectObj.injected()) {
       return true;
     } else {

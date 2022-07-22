@@ -7,6 +7,7 @@ import io.opentelemetry.instrumentation.test.AgentTestTrait
 import io.opentelemetry.instrumentation.test.asserts.TraceAssert
 import io.opentelemetry.instrumentation.test.base.HttpServerTest
 import io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint
+import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder
 import io.opentelemetry.testing.internal.armeria.common.AggregatedHttpRequest
 
 import javax.servlet.Servlet
@@ -98,5 +99,53 @@ abstract class AbstractServlet3Test<SERVER, CONTEXT> extends HttpServerTest<SERV
         sendErrorSpan(trace, index, parent)
         break
     }
+  }
+
+  def "snippet injection with PrintWriter"() {
+    setup:
+    SnippetHolder.setSnippet("\n  <script type=\"text/javascript\"> Test </script>")
+    def request = request(HTML, "GET")
+    def response = client.execute(request).aggregate().join()
+
+    expect:
+    response.status().code() == HTML.status
+    String result = "<!DOCTYPE html>\n" +
+      "<html lang=\"en\">\n" +
+      "<head>\n" +
+      "  <script type=\"text/javascript\"> Test </script>\n" +
+      "  <meta charset=\"UTF-8\">\n" +
+      "  <title>Title</title>\n" +
+      "</head>\n" +
+      "<body>\n" +
+      "<p>test works</p>\n" +
+      "</body>\n" +
+      "</html>"
+
+    response.contentUtf8() == result
+    response.headers().contentLength() == result.length();
+  }
+
+  def "snippet injection with ServletOutPutStream"() {
+    setup:
+    SnippetHolder.setSnippet("\n  <script type=\"text/javascript\"> Test </script>")
+    def request = request(HTML2, "GET")
+    def response = client.execute(request).aggregate().join()
+
+    expect:
+    response.status().code() == HTML2.status
+    // check response content-length header
+    String result = "<!DOCTYPE html>\n" +
+      "<html lang=\"en\">\n" +
+      "<head>\n" +
+      "  <script type=\"text/javascript\"> Test </script>\n" +
+      "  <meta charset=\"UTF-8\">\n" +
+      "  <title>Title</title>\n" +
+      "</head>\n" +
+      "<body>\n" +
+      "<p>test works</p>\n" +
+      "</body>\n" +
+      "</html>"
+    response.contentUtf8() == result
+    response.headers().contentLength() == result.length();
   }
 }
