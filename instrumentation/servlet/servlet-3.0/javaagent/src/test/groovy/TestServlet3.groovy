@@ -83,12 +83,13 @@ class TestServlet3 {
           case HTML2:
             resp.contentType = "text/html"
             resp.status = endpoint.status
-            try {
-              resp.setContentLengthLong(136)
-            } catch (Exception e) {
-              // servlet 3.0
-              resp.setContentLength(136)
-            }
+//            try {
+//              resp.setContentLengthLong(136)
+//            } catch (Exception e) {
+//              // servlet 3.0
+//              resp.setContentLength(136)
+//            }
+            resp.setContentLength(136)
             byte[] check = endpoint.body.getBytes()
             resp.getOutputStream().write(check, 0, check.length)
             break

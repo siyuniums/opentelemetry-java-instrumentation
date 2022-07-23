@@ -145,7 +145,8 @@ abstract class AbstractServlet3Test<SERVER, CONTEXT> extends HttpServerTest<SERV
       "<p>test works</p>\n" +
       "</body>\n" +
       "</html>"
-    response.contentUtf8() == result
     response.headers().contentLength() == result.length();
+    response.contentUtf8() == result
+
   }
 }

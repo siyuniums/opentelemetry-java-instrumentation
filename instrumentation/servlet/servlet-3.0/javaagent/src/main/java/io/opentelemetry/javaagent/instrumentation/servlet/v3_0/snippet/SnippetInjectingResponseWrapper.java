@@ -18,6 +18,9 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   private static final String SNIPPET = SnippetHolder.getSnippet();
   private static final int SNIPPET_LENGTH = SNIPPET.length();
   public static final String FAKE_SNIPPET_HEADER = "FAKE_SNIPPET_HEADER";
+  public long contentLength = 0;
+  public boolean injected = false;
+  public boolean addLength = false;
 
   public SnippetInjectingResponseWrapper(HttpServletResponse response) {
     super(response);
@@ -39,9 +42,14 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   public void setHeader(String name, String value) {
     if (shouldInject() && "Content-Length".equalsIgnoreCase(name)) {
       try {
-        value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
+        contentLength = Integer.valueOf(value);
+        //        value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
       } catch (NumberFormatException ex) {
         System.err.println("Invalid string format");
+      }
+      if (addLength) {
+        // already injected
+        value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
       }
     }
     super.setHeader(name, value);
@@ -51,9 +59,14 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   public void addHeader(String name, String value) {
     if (shouldInject() && "Content-Length".equalsIgnoreCase(name)) {
       try {
-        value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
+        contentLength = Integer.valueOf(value);
+        //        value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
       } catch (NumberFormatException ex) {
         System.err.println("Invalid string format");
+      }
+      if (addLength) {
+        // already injected
+        value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
       }
     }
     super.addHeader(name, value);
@@ -62,7 +75,11 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public void setIntHeader(String name, int value) {
     if (shouldInject() && "Content-Length".equalsIgnoreCase(name)) {
-      value = SNIPPET_LENGTH + value;
+      contentLength = value;
+      if (addLength) {
+        // already injected
+        value = SNIPPET_LENGTH + value;
+      }
     }
     super.setIntHeader(name, value);
   }
@@ -70,7 +87,11 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public void addIntHeader(String name, int value) {
     if (shouldInject() && "Content-Length".equalsIgnoreCase(name)) {
-      value = SNIPPET_LENGTH + value;
+      contentLength = value;
+      if (addLength) {
+        // already injected
+        value = SNIPPET_LENGTH + value;
+      }
     }
     super.addIntHeader(name, value);
   }
@@ -78,9 +99,29 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public void setContentLength(int len) {
     if (shouldInject()) {
-      len = len + SNIPPET_LENGTH;
+      contentLength = len;
+      if (addLength) {
+        // already injected
+        len = len + SNIPPET_LENGTH;
+      }
     }
     super.setContentLength(len);
+  }
+
+  public void setContentLengthLong(long length) throws Throwable {
+    if (shouldInject()) {
+      contentLength = length;
+      if (addLength) {
+        // already injected
+        length = length + SNIPPET_LENGTH;
+      }
+    }
+    if (setContentLengthLongHandler == null) {
+      System.out.println("didn't find setContentLengthLong function");
+      super.setContentLength((int) length);
+    } else {
+      setContentLengthLongHandler.invokeWithArguments(this, length);
+    }
   }
 
   @Nullable private static final MethodHandle setContentLengthLongHandler = getMethodHandle();
@@ -115,18 +156,6 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
     return shouldInject;
   }
 
-  public void setContentLengthLong(long length) throws Throwable {
-    if (shouldInject()) {
-      length = length + SNIPPET_LENGTH;
-    }
-    if (setContentLengthLongHandler == null) {
-      System.out.println("didn't find setContentLengthLong function");
-      super.setContentLength((int) length);
-    } else {
-      setContentLengthLongHandler.invokeWithArguments(this, length);
-    }
-  }
-
   @Override
   public String getCharacterEncoding() {
     String characterEncoding = super.getCharacterEncoding();
@@ -151,7 +180,8 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public PrintWriter getWriter() throws IOException {
     if (shouldInject()) {
-      return new SnippetInjectingPrintWriter(super.getWriter(), SNIPPET, getCharacterEncoding());
+      return new SnippetInjectingPrintWriter(
+          super.getWriter(), SNIPPET, getCharacterEncoding(), this);
     } else {
       return super.getWriter();
     }

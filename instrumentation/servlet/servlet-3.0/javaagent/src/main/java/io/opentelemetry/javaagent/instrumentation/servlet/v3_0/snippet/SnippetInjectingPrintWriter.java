@@ -1,17 +1,24 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
+import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
 import java.io.PrintWriter;
 
 public class SnippetInjectingPrintWriter extends PrintWriter {
   private final String snippet;
   private final InjectionObject obj = new InjectionObject();
+  private final SnippetInjectingResponseWrapper wrapper;
 
-  public SnippetInjectingPrintWriter(PrintWriter writer, String snippet, String characterEncoding) {
+  public SnippetInjectingPrintWriter(
+      PrintWriter writer,
+      String snippet,
+      String characterEncoding,
+      SnippetInjectingResponseWrapper wrapper) {
     super(writer);
     obj.characterEncoding = characterEncoding;
     obj.headTagBytesSeen = -1;
     this.snippet = snippet;
+    this.wrapper = wrapper;
   }
 
   @Override
@@ -28,9 +35,16 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
     super.write(b);
     if (obj.inject()) {
       // begin to insert
+      System.out.println("printWrtier begin to inject");
       obj.headTagBytesSeen = -2;
-      System.out.println("after reset" + obj.inject());
       super.write(this.snippet);
+      if (wrapper.contentLength > 0) {
+        wrapper.setHeader(
+            "Content-Length",
+            Long.toString(wrapper.contentLength + SnippetHolder.getSnippet().length()));
+      } else {
+        wrapper.addLength = true;
+      }
     }
   }
 

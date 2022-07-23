@@ -44,6 +44,18 @@ public class InjectionObject {
       sp.write(b);
       byte[] snippetBytes = SnippetHolder.getSnippetBytes(this.characterEncoding);
       sp.write(snippetBytes);
+      if (wrapper.contentLength > 0) {
+        System.out.println(
+            "intInjection wrapper.contentLength > 0 "
+                + (wrapper.contentLength + SnippetHolder.getSnippet().length()));
+        wrapper.setHeader(
+            "Content-Length",
+            Long.toString(wrapper.contentLength + SnippetHolder.getSnippet().length()));
+      } else {
+        System.out.println("wrapper.contentLength <= 0 ");
+        wrapper.addLength = true;
+      }
+
       return false;
     } else {
       return true;
@@ -65,6 +77,18 @@ public class InjectionObject {
       byte[] snippetBytes = SnippetHolder.getSnippetBytes(this.characterEncoding);
       sp.write(snippetBytes);
       sp.write(original, i + 1, length - i - 1);
+      if (wrapper.contentLength > 0) {
+        System.out.println(
+            "stringInjection wrapper.contentLength > 0 "
+                + Long.toString(wrapper.contentLength + SnippetHolder.getSnippet().length()));
+        wrapper.setHeader(
+            "Content-Length",
+            Long.toString(wrapper.contentLength + SnippetHolder.getSnippet().length()));
+        wrapper.setContentLength(185);
+      } else {
+        System.out.println("wrapper.contentLength <= 0 ");
+        wrapper.addLength = true;
+      }
       return false;
     } else {
       return true;
