@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 public class SnippetHolder {
 
-  private static String snippet = "";
+  private static String snippet = "<script>test</script>";
 
   public static void setSnippet(String snippet) {
     SnippetHolder.snippet = snippet;
