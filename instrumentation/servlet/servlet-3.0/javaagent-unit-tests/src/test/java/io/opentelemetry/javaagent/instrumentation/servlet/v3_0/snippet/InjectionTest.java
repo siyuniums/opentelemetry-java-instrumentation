@@ -1,5 +1,6 @@
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
+import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.ServletOutputStreamInjectionHelper.process;
 import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.TestUtil.readFile;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -21,7 +22,7 @@ class InjectionTest {
     // read the correct answer
     String correct = readFile("staticHtmlAfter.html");
     byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
-    InjectionObject obj = new InjectionObject();
+    InjectionState obj = new InjectionState();
 
     StringWriter writer = new StringWriter();
 
@@ -32,7 +33,7 @@ class InjectionTest {
             writer.write(b);
           }
         };
-    boolean injected = !obj.stringInjection(sp, originalBytes, 0, originalBytes.length);
+    boolean injected = !process(obj, sp, originalBytes, 0, originalBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-2);
     assertThat(injected).isEqualTo(true);
     writer.flush();
@@ -80,7 +81,7 @@ class InjectionTest {
     String original = readFile("htmlWithoutHeadTag.html");
 
     byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
-    InjectionObject obj = new InjectionObject();
+    InjectionState obj = new InjectionState();
     StringWriter writer = new StringWriter();
 
     ServletOutputStream sp =
@@ -90,7 +91,7 @@ class InjectionTest {
             writer.write(b);
           }
         };
-    boolean injected = !obj.stringInjection(sp, originalBytes, 0, originalBytes.length);
+    boolean injected = !process(obj, sp, originalBytes, 0, originalBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-1);
     assertThat(injected).isEqualTo(false);
     writer.flush();
@@ -106,7 +107,7 @@ class InjectionTest {
     // read the original string
     String originalFirstPart = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "<he";
     byte[] originalFirstPartBytes = originalFirstPart.getBytes(StandardCharsets.UTF_8);
-    InjectionObject obj = new InjectionObject();
+    InjectionState obj = new InjectionState();
     StringWriter writer = new StringWriter();
 
     ServletOutputStream sp =
@@ -116,8 +117,7 @@ class InjectionTest {
             writer.write(b);
           }
         };
-    boolean injected =
-        !obj.stringInjection(sp, originalFirstPartBytes, 0, originalFirstPartBytes.length);
+    boolean injected = !process(obj, sp, originalFirstPartBytes, 0, originalFirstPartBytes.length);
 
     writer.flush();
     String result = writer.toString();
@@ -134,7 +134,7 @@ class InjectionTest {
             + "</body>\n"
             + "</html>";
     byte[] originalSecondPartBytes = originalSecondPart.getBytes(StandardCharsets.UTF_8);
-    injected = !obj.stringInjection(sp, originalSecondPartBytes, 0, originalSecondPartBytes.length);
+    injected = !process(obj, sp, originalSecondPartBytes, 0, originalSecondPartBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-2);
     assertThat(injected).isEqualTo(true);
     String correctSecondPart =

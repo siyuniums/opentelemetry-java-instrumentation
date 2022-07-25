@@ -139,7 +139,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public ServletOutputStream getOutputStream() throws IOException {
     ServletOutputStream output = super.getOutputStream();
-    InjectionObject obj = getInjectionObject(output);
+    InjectionState obj = getInjectionObject(output);
     obj.characterEncoding = getCharacterEncoding();
     if (obj.wrapper == null || obj.wrapper != this) { // now I am a new response
       obj.headTagBytesSeen = -1;

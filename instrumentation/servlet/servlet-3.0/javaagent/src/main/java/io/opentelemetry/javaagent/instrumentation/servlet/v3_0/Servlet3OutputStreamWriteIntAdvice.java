@@ -2,8 +2,9 @@
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0;
 
 import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.getInjectionObject;
+import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.ServletOutputStreamInjectionHelper.process;
 
-import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectionObject;
+import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectionState;
 import java.io.IOException;
 import javax.servlet.ServletOutputStream;
 import net.bytebuddy.asm.Advice;
@@ -15,12 +16,8 @@ public class Servlet3OutputStreamWriteIntAdvice {
       @Advice.This ServletOutputStream servletOutputStream,
       @Advice.Argument(value = 0, readOnly = false) int write)
       throws IOException {
-    InjectionObject obj = getInjectionObject(servletOutputStream);
-    if (obj.injected() || obj.characterEncoding == null) {
-      return true;
-    } else {
-      boolean injected = obj.intInjection(servletOutputStream, (byte) write);
-      return injected;
-    }
+    InjectionState obj = getInjectionObject(servletOutputStream);
+    boolean injected = process(obj, servletOutputStream, (byte) write);
+    return injected;
   }
 }
