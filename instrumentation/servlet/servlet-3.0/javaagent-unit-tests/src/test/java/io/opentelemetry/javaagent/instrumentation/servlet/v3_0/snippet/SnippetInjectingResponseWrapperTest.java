@@ -23,7 +23,8 @@ class SnippetInjectingResponseWrapperTest {
     String correct = readFile("staticHtmlAfter.html");
     HttpServletResponse response = mock(HttpServletResponse.class);
     when(response.getContentType()).thenReturn("text/html");
-
+    when(response.getStatus()).thenReturn(200);
+    when(response.containsHeader("content-type")).thenReturn(true);
     StringWriter writer = new StringWriter();
     when(response.getWriter()).thenReturn(new PrintWriter(writer));
     SnippetHolder.setSnippet("\n  <script type=\"text/javascript\"> Test </script>");
@@ -73,6 +74,8 @@ class SnippetInjectingResponseWrapperTest {
     StringWriter writer = new StringWriter();
     HttpServletResponse response = mock(HttpServletResponse.class);
     when(response.getContentType()).thenReturn("not/text");
+    when(response.getStatus()).thenReturn(200);
+    when(response.containsHeader("content-type")).thenReturn(true);
 
     when(response.getWriter()).thenReturn(new PrintWriter(writer, true));
     SnippetHolder.setSnippet("\n  <script type=\"text/javascript\"> Test </script>");
@@ -97,6 +100,8 @@ class SnippetInjectingResponseWrapperTest {
     String correct = readFile("staticHtmlChineseAfter.html");
     HttpServletResponse response = mock(HttpServletResponse.class);
     when(response.getContentType()).thenReturn("text/html");
+    when(response.getStatus()).thenReturn(200);
+    when(response.containsHeader("content-type")).thenReturn(true);
 
     StringWriter writer = new StringWriter();
     StringWriter correctWriter = new StringWriter();
@@ -137,6 +142,8 @@ class SnippetInjectingResponseWrapperTest {
     String correct = readFile("staticHtmlChineseAfter.html");
     HttpServletResponse response = mock(HttpServletResponse.class);
     when(response.getContentType()).thenReturn("text/html");
+    when(response.getStatus()).thenReturn(200);
+    when(response.containsHeader("content-type")).thenReturn(true);
 
     StringWriter writer = new StringWriter();
     when(response.getWriter()).thenReturn(new PrintWriter(writer));
@@ -164,6 +171,8 @@ class SnippetInjectingResponseWrapperTest {
     original = extraBuffer + original;
     HttpServletResponse response = mock(HttpServletResponse.class);
     when(response.getContentType()).thenReturn("text/html");
+    when(response.getStatus()).thenReturn(200);
+    when(response.containsHeader("content-type")).thenReturn(true);
 
     StringWriter writer = new StringWriter();
     when(response.getWriter()).thenReturn(new PrintWriter(writer));

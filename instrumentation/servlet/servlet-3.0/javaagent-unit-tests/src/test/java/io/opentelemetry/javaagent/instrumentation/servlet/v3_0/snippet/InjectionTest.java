@@ -33,7 +33,7 @@ class InjectionTest {
             writer.write(b);
           }
         };
-    boolean injected = !process(obj, sp, originalBytes, 0, originalBytes.length);
+    boolean injected = process(obj, sp, originalBytes, 0, originalBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-2);
     assertThat(injected).isEqualTo(true);
     writer.flush();
@@ -91,7 +91,7 @@ class InjectionTest {
             writer.write(b);
           }
         };
-    boolean injected = !process(obj, sp, originalBytes, 0, originalBytes.length);
+    boolean injected = process(obj, sp, originalBytes, 0, originalBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-1);
     assertThat(injected).isEqualTo(false);
     writer.flush();
@@ -117,7 +117,7 @@ class InjectionTest {
             writer.write(b);
           }
         };
-    boolean injected = !process(obj, sp, originalFirstPartBytes, 0, originalFirstPartBytes.length);
+    boolean injected = process(obj, sp, originalFirstPartBytes, 0, originalFirstPartBytes.length);
 
     writer.flush();
     String result = writer.toString();
