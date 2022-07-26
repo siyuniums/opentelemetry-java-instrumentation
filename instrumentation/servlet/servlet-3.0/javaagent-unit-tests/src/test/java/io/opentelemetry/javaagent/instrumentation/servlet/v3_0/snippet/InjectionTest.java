@@ -22,7 +22,7 @@ class InjectionTest {
     // read the correct answer
     String correct = readFile("staticHtmlAfter.html");
     byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
-    InjectionState obj = new InjectionState();
+    InjectionState obj = new InjectionState(StandardCharsets.UTF_8.name());
 
     StringWriter writer = new StringWriter();
 
@@ -81,7 +81,7 @@ class InjectionTest {
     String original = readFile("htmlWithoutHeadTag.html");
 
     byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
-    InjectionState obj = new InjectionState();
+    InjectionState obj = new InjectionState(StandardCharsets.UTF_8.name());
     StringWriter writer = new StringWriter();
 
     ServletOutputStream sp =
@@ -107,7 +107,7 @@ class InjectionTest {
     // read the original string
     String originalFirstPart = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "<he";
     byte[] originalFirstPartBytes = originalFirstPart.getBytes(StandardCharsets.UTF_8);
-    InjectionState obj = new InjectionState();
+    InjectionState obj = new InjectionState(StandardCharsets.UTF_8.name());
     StringWriter writer = new StringWriter();
 
     ServletOutputStream sp =
@@ -134,7 +134,7 @@ class InjectionTest {
             + "</body>\n"
             + "</html>";
     byte[] originalSecondPartBytes = originalSecondPart.getBytes(StandardCharsets.UTF_8);
-    injected = !process(obj, sp, originalSecondPartBytes, 0, originalSecondPartBytes.length);
+    injected = process(obj, sp, originalSecondPartBytes, 0, originalSecondPartBytes.length);
     assertThat(obj.headTagBytesSeen).isEqualTo(-2);
     assertThat(injected).isEqualTo(true);
     String correctSecondPart =

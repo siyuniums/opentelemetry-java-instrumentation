@@ -24,6 +24,9 @@ public class InjectionState {
   }
 
   public boolean processByte(byte b) {
+    if (alreadyInjected()) { // headTagBytesSeen = -2;
+      return false;
+    }
     if (stillInHeadTag(b)) {
       headTagBytesSeen++;
     } else {
