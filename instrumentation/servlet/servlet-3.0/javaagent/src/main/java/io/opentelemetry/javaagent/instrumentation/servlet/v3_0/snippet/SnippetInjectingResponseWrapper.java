@@ -127,8 +127,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
     }
   }
 
-  @Override
-  public String getCharacterEncoding() {
+  public String getCharacterEncodingHelper() {
     String characterEncoding = super.getCharacterEncoding();
     if (characterEncoding == null) {
       characterEncoding = "UTF-8";
@@ -140,7 +139,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   public ServletOutputStream getOutputStream() throws IOException {
     ServletOutputStream output = super.getOutputStream();
     InjectionState obj = getInjectionObject(output);
-    obj.characterEncoding = getCharacterEncoding();
+    obj.characterEncoding = getCharacterEncodingHelper();
     if (obj.wrapper == null || obj.wrapper != this) { // now I am a new response
       obj.headTagBytesSeen = -1;
       obj.wrapper = this;
@@ -151,7 +150,8 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public PrintWriter getWriter() throws IOException {
     if (shouldInject()) {
-      return new SnippetInjectingPrintWriter(super.getWriter(), SNIPPET, getCharacterEncoding());
+      return new SnippetInjectingPrintWriter(
+          super.getWriter(), SNIPPET, getCharacterEncodingHelper());
     } else {
       return super.getWriter();
     }

@@ -17,7 +17,7 @@ public class Servlet3OutputStreamWriteIntAdvice {
       @Advice.Argument(value = 0, readOnly = false) int write)
       throws IOException {
     InjectionState obj = getInjectionObject(servletOutputStream);
-    boolean injected = process(obj, servletOutputStream, (byte) write);
+    boolean injected = !process(obj, servletOutputStream, (byte) write);
     return injected;
   }
 }

@@ -18,7 +18,7 @@ public class Servlet3OutputStreamWriteBytesAndOffsetAdvice {
       @Advice.Argument(value = 2, readOnly = false) int len)
       throws IOException {
     InjectionState obj = getInjectionObject(servletOutputStream);
-    boolean result = process(obj, servletOutputStream, write, off, len);
+    boolean result = !process(obj, servletOutputStream, write, off, len);
     return result;
   }
 }

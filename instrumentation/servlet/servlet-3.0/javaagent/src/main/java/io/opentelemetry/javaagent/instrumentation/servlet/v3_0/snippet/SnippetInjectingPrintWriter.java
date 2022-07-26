@@ -1,18 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
-import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectionState.ALREADY_INJECTED_FAKE_VALUE;
-
 import java.io.PrintWriter;
 
 public class SnippetInjectingPrintWriter extends PrintWriter {
   private final String snippet;
-  private final InjectionState obj = new InjectionState();
+  private final InjectionState state;
 
   public SnippetInjectingPrintWriter(PrintWriter writer, String snippet, String characterEncoding) {
     super(writer);
-    obj.characterEncoding = characterEncoding;
-    obj.headTagBytesSeen = -1;
+    state = new InjectionState(characterEncoding);
     this.snippet = snippet;
   }
 
@@ -26,11 +23,11 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
 
   @Override
   public void write(int b) {
-    boolean shouldInject = obj.processByte((byte) b);
+    boolean shouldInject = state.processByte((byte) b);
     super.write(b);
     if (shouldInject) {
       // begin to insert
-      obj.headTagBytesSeen = ALREADY_INJECTED_FAKE_VALUE;
+      state.setAlreadyInjected(); // set before write to avoid recursive loop
       super.write(this.snippet);
     }
   }

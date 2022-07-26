@@ -7,13 +7,13 @@ public class Injection {
 
   public static InjectionState getInjectionObject(ServletOutputStream servletOutputStream) {
 
-    InjectionState virtualObj =
+    InjectionState state =
         VirtualField.find(ServletOutputStream.class, InjectionState.class).get(servletOutputStream);
-    if (virtualObj == null) {
-      virtualObj = new InjectionState();
+    if (state == null) {
+      state = new InjectionState();
       VirtualField.find(ServletOutputStream.class, InjectionState.class)
-          .set(servletOutputStream, virtualObj);
+          .set(servletOutputStream, state);
     }
-    return virtualObj;
+    return state;
   }
 }
