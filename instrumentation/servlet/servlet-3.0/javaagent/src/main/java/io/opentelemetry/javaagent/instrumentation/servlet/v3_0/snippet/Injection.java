@@ -19,7 +19,6 @@ public class Injection {
   }
 
   public static InjectionState getInjectionObject(ServletOutputStream servletOutputStream) {
-
     InjectionState state =
         VirtualField.find(ServletOutputStream.class, InjectionState.class).get(servletOutputStream);
     return state;

@@ -18,6 +18,9 @@ public class Servlet3OutputStreamWriteBytesAndOffsetAdvice {
       @Advice.Argument(value = 2, readOnly = false) int len)
       throws IOException {
     InjectionState state = getInjectionObject(servletOutputStream);
+    if (state == null) {
+      return true;
+    }
     // if handleWrite return true, then it means the injection has happened and the 'write'
     // manipulate is done. the function would return false then, meaning skip the original write
     // function

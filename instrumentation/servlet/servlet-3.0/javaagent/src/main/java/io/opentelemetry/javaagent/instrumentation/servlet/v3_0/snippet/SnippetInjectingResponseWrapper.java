@@ -43,7 +43,9 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
       try {
         value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
       } catch (NumberFormatException ex) {
-        System.err.println("Invalid string format");
+        System.out.println(ex);
+        //        BuildLogger.Adapter logger = null;
+        //        logger.debug("Invalid string format", ex);
       }
     }
     super.setHeader(name, value);
@@ -116,7 +118,6 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
       length += SNIPPET_LENGTH;
     }
     if (setContentLengthLongHandler == null) {
-      System.out.println("didn't find setContentLengthLong function");
       super.setContentLength((int) length);
     } else {
       setContentLengthLongHandler.invokeWithArguments(this, length);

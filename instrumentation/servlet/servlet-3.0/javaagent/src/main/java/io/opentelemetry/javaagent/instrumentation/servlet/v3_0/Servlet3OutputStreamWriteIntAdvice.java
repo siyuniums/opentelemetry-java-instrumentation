@@ -17,7 +17,12 @@ public class Servlet3OutputStreamWriteIntAdvice {
       @Advice.Argument(value = 0, readOnly = false) int write)
       throws IOException {
     InjectionState state = getInjectionObject(servletOutputStream);
-    boolean injected = !handleWrite(state, servletOutputStream, (byte) write);
-    return injected;
+    if (state == null) {
+      return true;
+    }
+    // if handleWrite return true, then it means the injection has happened and the 'write'
+    // manipulate is done. the function would return false then, meaning skip the original write
+    // function
+    return !handleWrite(state, servletOutputStream, (byte) write);
   }
 }

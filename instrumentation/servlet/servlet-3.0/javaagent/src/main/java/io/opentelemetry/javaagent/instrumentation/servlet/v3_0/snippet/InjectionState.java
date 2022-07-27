@@ -10,10 +10,6 @@ public class InjectionState {
     return headTagBytesSeen;
   }
 
-  public void resetHeadTagBytesSeen() {
-    headTagBytesSeen = 0;
-  }
-
   public String getCharacterEncoding() {
     return this.characterEncoding;
   }
@@ -68,12 +64,8 @@ public class InjectionState {
     return false;
   }
 
-  public void setWrapper(SnippetInjectingResponseWrapper wrapper) {
-    this.wrapper = wrapper;
-  }
-
   public void reset(SnippetInjectingResponseWrapper wrapper) {
-    headTagBytesSeen = -1;
+    headTagBytesSeen = 0;
     this.wrapper = wrapper;
   }
 }
