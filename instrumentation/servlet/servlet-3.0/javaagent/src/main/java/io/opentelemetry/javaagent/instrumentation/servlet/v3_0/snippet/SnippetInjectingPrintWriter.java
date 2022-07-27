@@ -26,7 +26,8 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
     super.write(b);
     if (shouldInject) {
       // begin to insert
-      state.setAlreadyInjected(); // set before write to avoid recursive loop
+      // set before write to avoid recursive loop since super.write(String) may delegate back to write(int)
+      state.setAlreadyInjected();
       super.write(this.snippet);
     }
   }
