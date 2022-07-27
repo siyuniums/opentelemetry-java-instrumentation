@@ -1,3 +1,8 @@
+/*
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package io.opentelemetry.javaagent.bootstrap.servlet;
 
 import java.io.UnsupportedEncodingException;
@@ -6,7 +11,7 @@ import javax.annotation.Nullable;
 
 public class SnippetHolder {
 
-  private static String snippet = "";
+  private static String snippet = "<script>Testing</script>";
 
   public static void setSnippet(String snippet) {
     SnippetHolder.snippet = snippet;
