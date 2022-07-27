@@ -25,7 +25,6 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
     boolean shouldInject = state.processByte((byte) b);
     super.write(b);
     if (shouldInject) {
-      // begin to insert
       // set before write to avoid recursive loop since super.write(String) may delegate back to write(int)
       state.setAlreadyInjected();
       super.write(snippet);
