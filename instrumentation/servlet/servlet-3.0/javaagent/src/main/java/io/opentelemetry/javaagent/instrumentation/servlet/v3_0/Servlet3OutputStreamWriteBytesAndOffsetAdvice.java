@@ -17,9 +17,9 @@ public class Servlet3OutputStreamWriteBytesAndOffsetAdvice {
   @Advice.OnMethodEnter(skipOn = Advice.OnDefaultValue.class, suppress = Throwable.class)
   public static boolean methodEnter(
       @Advice.This ServletOutputStream servletOutputStream,
-      @Advice.Argument(value = 0, readOnly = false) byte[] write,
-      @Advice.Argument(value = 1, readOnly = false) int off,
-      @Advice.Argument(value = 2, readOnly = false) int len)
+      @Advice.Argument(value = 0) byte[] write,
+      @Advice.Argument(value = 1) int off,
+      @Advice.Argument(value = 2) int len)
       throws IOException {
     InjectionState state = getInjectionObject(servletOutputStream);
     if (state == null) {
