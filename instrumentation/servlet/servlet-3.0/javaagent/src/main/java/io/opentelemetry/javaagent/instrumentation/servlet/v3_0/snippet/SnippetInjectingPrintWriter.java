@@ -34,8 +34,7 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
   @Override
   public void write(char[] buf, int off, int len) {
     for (int i = off; i < buf.length && i - off < len; i++) {
-      char b = buf[i];
-      write(b);
+      write(buf[i]);
     }
   }
 }
