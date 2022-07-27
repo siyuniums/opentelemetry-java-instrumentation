@@ -29,7 +29,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
     // override this function in order to make sure the response is wrapped
     // but not wrapped twice
     // we didn't use the traditional method req.setattribute
-    // because async may carry out the old req and new resp without wrapped
+    // because async may carry out the original request without the attributes that we set
     if (name.equals(FAKE_SNIPPET_HEADER)) {
       return true;
     }
