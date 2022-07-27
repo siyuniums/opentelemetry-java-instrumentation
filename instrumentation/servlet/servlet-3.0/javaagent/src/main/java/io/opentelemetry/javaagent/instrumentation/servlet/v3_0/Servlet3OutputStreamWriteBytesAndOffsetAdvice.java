@@ -21,6 +21,6 @@ public class Servlet3OutputStreamWriteBytesAndOffsetAdvice {
     // if handleWrite return true, then it means the injection has happened and the 'write'
     // manipulate is done. the function would return false then, meaning skip the original write
     // function
-    return !handleWrite(write, 0, write.length, state, servletOutputStream);
+    return !handleWrite(write, off, len, state, servletOutputStream);
   }
 }
