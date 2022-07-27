@@ -16,8 +16,7 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
   @Override
   public void write(String s, int off, int len) {
     for (int i = off; i < s.length() && i - off < len; i++) {
-      char b = s.charAt(i);
-      write(b);
+      write(s.charAt(i));
     }
   }
 
