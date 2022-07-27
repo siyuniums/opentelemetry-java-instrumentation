@@ -5,6 +5,7 @@
 
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.HTML;
 import static io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint.HTML2;
+
 import io.opentelemetry.instrumentation.testing.junit.http.ServerEndpoint;
 import java.io.IOException;
 import javax.servlet.RequestDispatcher;

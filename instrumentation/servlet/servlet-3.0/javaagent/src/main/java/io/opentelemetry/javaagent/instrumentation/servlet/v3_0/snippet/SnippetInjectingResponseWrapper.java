@@ -1,4 +1,8 @@
-/* SPDX-License-Identifier: Apache-2.0 */
+/*
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
 import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.getOrCreateInjectionObject;
@@ -127,6 +131,10 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   public String getCharacterEncodingHelper() {
     String characterEncoding = super.getCharacterEncoding();
     if (characterEncoding == null) {
+      // The default character encoding for HTML5, and the one recommended by the World Wide Web
+      // Consortium for all content, is UTF-8.
+      // if user didn't set characterEncoding before sending back response,
+      // then response wrapper would use the most common utf-8 to encode it.
       characterEncoding = "UTF-8";
     }
     return characterEncoding;

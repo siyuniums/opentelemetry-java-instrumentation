@@ -1,4 +1,8 @@
-/* SPDX-License-Identifier: Apache-2.0 */
+/*
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
 import java.io.PrintWriter;
@@ -25,7 +29,8 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
     boolean shouldInject = state.processByte((byte) b);
     super.write(b);
     if (shouldInject) {
-      // set before write to avoid recursive loop since super.write(String) may delegate back to write(int)
+      // set before write to avoid recursive loop since super.write(String) may delegate back to
+      // write(int)
       state.setAlreadyInjected();
       super.write(snippet);
     }
