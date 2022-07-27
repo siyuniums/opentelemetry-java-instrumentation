@@ -10,7 +10,7 @@ public class ServletOutputStreamInjectionHelper {
   /**
    * return true means this method performed the injection, return false means it didn't inject anything
    * Servlet3OutputStreamWriteAdvice would skip the write method when the return value is true, and
-   * would write the original bytes when get return value false.
+   * would write the original bytes when the return value is false.
    */
   public static boolean handleWrite(
       byte[] original, int off, int length, InjectionState state, ServletOutputStream sp)
