@@ -11,11 +11,10 @@ public class Injection {
     InjectionState state =
         VirtualField.find(ServletOutputStream.class, InjectionState.class).get(servletOutputStream);
     if (state == null) {
-      state = new InjectionState();
+      state = new InjectionState(characterEncoding);
       VirtualField.find(ServletOutputStream.class, InjectionState.class)
           .set(servletOutputStream, state);
     }
-    state.setCharacterEncoding(characterEncoding);
     return state;
   }
 
@@ -23,11 +22,6 @@ public class Injection {
 
     InjectionState state =
         VirtualField.find(ServletOutputStream.class, InjectionState.class).get(servletOutputStream);
-    if (state == null) {
-      state = new InjectionState();
-      VirtualField.find(ServletOutputStream.class, InjectionState.class)
-          .set(servletOutputStream, state);
-    }
     return state;
   }
 }

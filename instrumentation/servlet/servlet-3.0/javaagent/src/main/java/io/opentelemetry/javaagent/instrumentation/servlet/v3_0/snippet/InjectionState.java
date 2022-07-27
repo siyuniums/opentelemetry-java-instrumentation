@@ -4,7 +4,7 @@ public class InjectionState {
   private static final int ALREADY_INJECTED_FAKE_VALUE = -1;
   private static final int HEAD_TAG_LENGTH = "<head>".length();
   private int headTagBytesSeen = 0;
-  private String characterEncoding;
+  private final String characterEncoding;
 
   public int getHeadTagBytesSeen() {
     return headTagBytesSeen;
@@ -15,7 +15,7 @@ public class InjectionState {
   }
 
   public String getCharacterEncoding() {
-    return characterEncoding;
+    return this.characterEncoding;
   }
 
   public SnippetInjectingResponseWrapper getWrapper() {
@@ -27,8 +27,6 @@ public class InjectionState {
   public InjectionState(String characterEncoding) {
     this.characterEncoding = characterEncoding;
   }
-
-  public InjectionState() {}
 
   public void setAlreadyInjected() {
     headTagBytesSeen = ALREADY_INJECTED_FAKE_VALUE;
@@ -72,9 +70,5 @@ public class InjectionState {
 
   public void setWrapper(SnippetInjectingResponseWrapper wrapper) {
     this.wrapper = wrapper;
-  }
-
-  public void setCharacterEncoding(String characterEncoding) {
-    this.characterEncoding = characterEncoding;
   }
 }
