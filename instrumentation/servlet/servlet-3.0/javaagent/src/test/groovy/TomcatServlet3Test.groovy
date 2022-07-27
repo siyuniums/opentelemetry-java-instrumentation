@@ -124,31 +124,6 @@ abstract class TomcatServlet3Test extends AbstractServlet3Test<Tomcat, Context> 
     servletContext.addServletMappingDecoded(path, name)
   }
 
-//
-//  def "snippet injection with ServletOutPutStream"() {
-//    setup:
-//    SnippetHolder.setSnippet("\n  <script type=\"text/javascript\"> Test </script>")
-//    def request = request(HTML2, "GET")
-//    def response = client.execute(request).aggregate().join()
-//
-//    expect:
-//    response.status().code() == HTML2.status
-//    // check response content-length header
-//    String result = "<!DOCTYPE html>\n" +
-//      "<html lang=\"en\">\n" +
-//      "<head>\n" +
-//      "  <script type=\"text/javascript\"> Test </script>\n" +
-//      "  <meta charset=\"UTF-8\">\n" +
-//      "  <title>Title</title>\n" +
-//      "</head>\n" +
-//      "<body>\n" +
-//      "<p>test works</p>\n" +
-//      "</body>\n" +
-//      "</html>"
-//    response.contentUtf8() == result
-//    response.headers().contentLength() == result.length();
-//  }
-
   def "access log has ids for #count requests"() {
     given:
     def request = request(SUCCESS, method)
