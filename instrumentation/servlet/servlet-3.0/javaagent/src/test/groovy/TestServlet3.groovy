@@ -77,20 +77,20 @@ class TestServlet3 {
           case HTML:
             resp.contentType = "text/html"
             resp.status = endpoint.status
-            resp.setContentLength(136)
+            resp.setContentLength(endpoint.body.length())
             resp.writer.print(endpoint.body)
             break
           case HTML2:
             resp.contentType = "text/html"
             resp.status = endpoint.status
             try {
-              resp.setContentLengthLong(136)
+              resp.setContentLengthLong(endpoint.body.length())
             } catch (Exception e) {
               // servlet 3.0
-              resp.setContentLength(136)
+              resp.setContentLength(endpoint.body.length())
             }
-            byte[] check = endpoint.body.getBytes()
-            resp.getOutputStream().write(check, 0, check.length)
+            byte[] body = endpoint.body.getBytes()
+            resp.getOutputStream().write(body, 0, body.length)
             break
         }
       }
@@ -168,13 +168,13 @@ class TestServlet3 {
                 resp.contentType = "text/html"
                 resp.status = endpoint.status
                 resp.writer.print(endpoint.body)
-                resp.setContentLength(136)
+                resp.setContentLength(endpoint.body.length())
                 context.complete()
                 break
               case HTML2:
                 resp.contentType = "text/html"
                 resp.status = endpoint.status
-                resp.setContentLengthLong(136)
+                resp.setContentLengthLong(endpoint.body.length())
                 resp.getOutputStream().print(endpoint.body)
                 context.complete()
                 break

@@ -2,7 +2,7 @@
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0;
 
 import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.getInjectionObject;
-import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.ServletOutputStreamInjectionHelper.process;
+import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.ServletOutputStreamInjectionHelper.handleWrite;
 
 import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectionState;
 import java.io.IOException;
@@ -17,8 +17,10 @@ public class Servlet3OutputStreamWriteBytesAndOffsetAdvice {
       @Advice.Argument(value = 1, readOnly = false) int off,
       @Advice.Argument(value = 2, readOnly = false) int len)
       throws IOException {
-    InjectionState obj = getInjectionObject(servletOutputStream);
-    boolean result = !process(obj, servletOutputStream, write, off, len);
-    return result;
+    InjectionState state = getInjectionObject(servletOutputStream);
+    // if handleWrite return true, then it means the injection has happened and the 'write'
+    // manipulate is done. the function would return false then, meaning skip the original write
+    // function
+    return !handleWrite(write, 0, write.length, state, servletOutputStream);
   }
 }

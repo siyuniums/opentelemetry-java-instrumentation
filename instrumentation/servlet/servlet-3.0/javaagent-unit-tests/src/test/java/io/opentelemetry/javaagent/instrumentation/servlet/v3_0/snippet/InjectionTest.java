@@ -1,6 +1,5 @@
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
-import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.ServletOutputStreamInjectionHelper.process;
 import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.TestUtil.readFile;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -9,6 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletOutputStream;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class InjectionTest {
@@ -33,8 +33,10 @@ class InjectionTest {
             writer.write(b);
           }
         };
-    boolean injected = process(obj, sp, originalBytes, 0, originalBytes.length);
-    assertThat(obj.headTagBytesSeen).isEqualTo(-2);
+    boolean injected =
+        ServletOutputStreamInjectionHelper.handleWrite(
+            originalBytes, 0, originalBytes.length, obj, sp);
+    assertThat(obj.getHeadTagBytesSeen()).isEqualTo(-1);
     assertThat(injected).isEqualTo(true);
     writer.flush();
 
@@ -43,35 +45,38 @@ class InjectionTest {
     assertThat(result).isEqualTo(correct);
   }
 
-  //  @Test
-  //  void testInjectionForChinese() throws IOException {
-  //    String testSnippet = "\n  <script type=\"text/javascript\"> Test </script>";
-  //    SnippetHolder.setSnippet(testSnippet);
-  //    // read the originalFile
-  //    String original = readFile("staticHtmlChineseOrigin.html");
-  //    // read the correct answer
-  //    String correct = readFile("staticHtmlChineseAfter.html");
-  //    byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
-  //    InjectionObject obj = new InjectionObject();
-  //
-  //    StringWriter writer = new StringWriter();
-  //
-  //    ServletOutputStream sp =
-  //        new ServletOutputStream() {
-  //          @Override
-  //          public void write(int b) throws IOException {
-  //            writer.write(b);
-  //          }
-  //        };
-  //    boolean injected = !obj.stringInjection(sp, originalBytes, 0, originalBytes.length);
-  //    assertThat(obj.headTagBytesSeen).isEqualTo(-2);
-  //    assertThat(injected).isEqualTo(true);
-  //    writer.flush();
-  //
-  //    String result = writer.toString();
-  //    writer.close();
-  //    assertThat(result).isEqualTo(correct);
-  //  }
+  @Test
+  @Disabled
+  void testInjectionForChinese() throws IOException {
+    String testSnippet = "\n  <script type=\"text/javascript\"> Test </script>";
+    SnippetHolder.setSnippet(testSnippet);
+    // read the originalFile
+    String original = readFile("staticHtmlChineseOrigin.html");
+    // read the correct answer
+    String correct = readFile("staticHtmlChineseAfter.html");
+    byte[] originalBytes = original.getBytes(StandardCharsets.UTF_8);
+    InjectionState obj = new InjectionState(StandardCharsets.UTF_8.name());
+
+    StringWriter writer = new StringWriter();
+
+    ServletOutputStream sp =
+        new ServletOutputStream() {
+          @Override
+          public void write(int b) throws IOException {
+            writer.write(b);
+          }
+        };
+    boolean injected =
+        ServletOutputStreamInjectionHelper.handleWrite(
+            originalBytes, 0, originalBytes.length, obj, sp);
+    assertThat(obj.getHeadTagBytesSeen()).isEqualTo(-1);
+    assertThat(injected).isEqualTo(true);
+    writer.flush();
+
+    String result = writer.toString();
+    writer.close();
+    assertThat(result).isEqualTo(correct);
+  }
 
   @Test
   void testInjectionForStringWithoutHeadTag() throws IOException {
@@ -91,8 +96,10 @@ class InjectionTest {
             writer.write(b);
           }
         };
-    boolean injected = process(obj, sp, originalBytes, 0, originalBytes.length);
-    assertThat(obj.headTagBytesSeen).isEqualTo(-1);
+    boolean injected =
+        ServletOutputStreamInjectionHelper.handleWrite(
+            originalBytes, 0, originalBytes.length, obj, sp);
+    assertThat(obj.getHeadTagBytesSeen()).isEqualTo(0);
     assertThat(injected).isEqualTo(false);
     writer.flush();
     String result = writer.toString();
@@ -117,11 +124,13 @@ class InjectionTest {
             writer.write(b);
           }
         };
-    boolean injected = process(obj, sp, originalFirstPartBytes, 0, originalFirstPartBytes.length);
+    boolean injected =
+        ServletOutputStreamInjectionHelper.handleWrite(
+            originalFirstPartBytes, 0, originalFirstPartBytes.length, obj, sp);
 
     writer.flush();
     String result = writer.toString();
-    assertThat(obj.headTagBytesSeen).isEqualTo(2);
+    assertThat(obj.getHeadTagBytesSeen()).isEqualTo(3);
     assertThat(result).isEqualTo("");
     assertThat(injected).isEqualTo(false);
     String originalSecondPart =
@@ -134,8 +143,10 @@ class InjectionTest {
             + "</body>\n"
             + "</html>";
     byte[] originalSecondPartBytes = originalSecondPart.getBytes(StandardCharsets.UTF_8);
-    injected = process(obj, sp, originalSecondPartBytes, 0, originalSecondPartBytes.length);
-    assertThat(obj.headTagBytesSeen).isEqualTo(-2);
+    injected =
+        ServletOutputStreamInjectionHelper.handleWrite(
+            originalSecondPartBytes, 0, originalSecondPartBytes.length, obj, sp);
+    assertThat(obj.getHeadTagBytesSeen()).isEqualTo(-1);
     assertThat(injected).isEqualTo(true);
     String correctSecondPart =
         "ad>\n"

@@ -5,9 +5,13 @@ import java.io.PrintWriter;
 
 public class SnippetInjectingPrintWriter extends PrintWriter {
   private final String snippet;
-  private final InjectionState state;
+  private InjectionState state = null;
 
-  public SnippetInjectingPrintWriter(PrintWriter writer, String snippet, String characterEncoding) {
+  public SnippetInjectingPrintWriter(
+      PrintWriter writer,
+      String snippet,
+      String characterEncoding,
+      SnippetInjectingResponseWrapper wrapper) {
     super(writer);
     state = new InjectionState(characterEncoding);
     this.snippet = snippet;

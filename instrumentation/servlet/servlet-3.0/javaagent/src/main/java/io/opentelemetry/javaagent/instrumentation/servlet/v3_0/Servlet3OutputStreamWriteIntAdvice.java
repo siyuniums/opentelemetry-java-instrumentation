@@ -2,7 +2,7 @@
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0;
 
 import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.getInjectionObject;
-import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.ServletOutputStreamInjectionHelper.process;
+import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.ServletOutputStreamInjectionHelper.handleWrite;
 
 import io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.InjectionState;
 import java.io.IOException;
@@ -16,8 +16,8 @@ public class Servlet3OutputStreamWriteIntAdvice {
       @Advice.This ServletOutputStream servletOutputStream,
       @Advice.Argument(value = 0, readOnly = false) int write)
       throws IOException {
-    InjectionState obj = getInjectionObject(servletOutputStream);
-    boolean injected = !process(obj, servletOutputStream, (byte) write);
+    InjectionState state = getInjectionObject(servletOutputStream);
+    boolean injected = !handleWrite(state, servletOutputStream, (byte) write);
     return injected;
   }
 }

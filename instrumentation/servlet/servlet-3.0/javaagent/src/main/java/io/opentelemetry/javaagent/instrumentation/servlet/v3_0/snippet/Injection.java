@@ -5,6 +5,20 @@ import javax.servlet.ServletOutputStream;
 
 public class Injection {
 
+  public static InjectionState getOrCreateInjectionObject(
+      ServletOutputStream servletOutputStream, String characterEncoding) {
+
+    InjectionState state =
+        VirtualField.find(ServletOutputStream.class, InjectionState.class).get(servletOutputStream);
+    if (state == null) {
+      state = new InjectionState();
+      VirtualField.find(ServletOutputStream.class, InjectionState.class)
+          .set(servletOutputStream, state);
+    }
+    state.setCharacterEncoding(characterEncoding);
+    return state;
+  }
+
   public static InjectionState getInjectionObject(ServletOutputStream servletOutputStream) {
 
     InjectionState state =

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
-import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.getInjectionObject;
+import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.getOrCreateInjectionObject;
 
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
 import java.io.IOException;
@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 
 public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper {
   private static final String SNIPPET = SnippetHolder.getSnippet();
+  private SnippetInjectingPrintWriter snippetInjectingPrintWriter = null;
   private static final int SNIPPET_LENGTH = SNIPPET.length();
   public static final String FAKE_SNIPPET_HEADER = "FAKE_SNIPPET_HEADER";
 
@@ -101,18 +102,15 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   }
 
   private boolean shouldInject() {
-    boolean shouldInject = true;
-    if (!super.containsHeader("content-type")) {
-      shouldInject = false;
-    }
     String contentType = super.getContentType();
     if (contentType == null || !contentType.contains("text/html")) {
-      shouldInject = false;
+      return false;
     }
-    if (super.getStatus() != 200) {
-      shouldInject = false;
+    String header = super.getHeader("content-type");
+    if (super.containsHeader("content-type") && header != null && header.contains("text/html")) {
+      return true;
     }
-    return shouldInject;
+    return true;
   }
 
   public void setContentLengthLong(long length) throws Throwable {
@@ -138,11 +136,10 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public ServletOutputStream getOutputStream() throws IOException {
     ServletOutputStream output = super.getOutputStream();
-    InjectionState obj = getInjectionObject(output);
-    obj.characterEncoding = getCharacterEncodingHelper();
-    if (obj.wrapper == null || obj.wrapper != this) { // now I am a new response
-      obj.headTagBytesSeen = -1;
-      obj.wrapper = this;
+    InjectionState state = getOrCreateInjectionObject(output, getCharacterEncodingHelper());
+    if (state.getWrapper() == null || state.getWrapper() != this) { // now I am a new response
+      state.resetHeadTagBytesSeen();
+      state.setWrapper(this);
     }
     return output;
   }
@@ -150,8 +147,13 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public PrintWriter getWriter() throws IOException {
     if (shouldInject()) {
-      return new SnippetInjectingPrintWriter(
-          super.getWriter(), SNIPPET, getCharacterEncodingHelper());
+      if (snippetInjectingPrintWriter == null) {
+        snippetInjectingPrintWriter =
+            new SnippetInjectingPrintWriter(
+                super.getWriter(), SNIPPET, getCharacterEncodingHelper(), this);
+      }
+      return snippetInjectingPrintWriter;
+
     } else {
       return super.getWriter();
     }
