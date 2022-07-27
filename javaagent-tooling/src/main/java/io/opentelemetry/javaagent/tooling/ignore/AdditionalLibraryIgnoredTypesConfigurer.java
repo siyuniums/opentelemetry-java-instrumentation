@@ -28,7 +28,7 @@ public class AdditionalLibraryIgnoredTypesConfigurer implements IgnoredTypesConf
       "otel.javaagent.testing.additional-library-ignores.enabled";
 
   @Override
-  public void configure(ConfigProperties config, IgnoredTypesBuilder builder) {
+  public void configure(IgnoredTypesBuilder builder, ConfigProperties config) {
     if (config.getBoolean(ADDITIONAL_LIBRARY_IGNORES_ENABLED, true)) {
       configure(builder);
     }
@@ -212,11 +212,6 @@ public class AdditionalLibraryIgnoredTypesConfigurer implements IgnoredTypesConf
         .allowClass("ch.qos.logback.classic.Logger")
         .allowClass("ch.qos.logback.classic.spi.LoggingEvent")
         .allowClass("ch.qos.logback.classic.spi.LoggingEventVO");
-
-    builder
-        .ignoreClass("com.codahale.metrics.")
-        // We instrument servlets
-        .allowClass("com.codahale.metrics.servlets.");
 
     builder
         .ignoreClass("com.couchbase.client.deps.")

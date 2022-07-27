@@ -14,6 +14,7 @@ import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerMetrics;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.net.NetServerAttributesExtractor;
+import io.opentelemetry.javaagent.bootstrap.internal.CommonConfig;
 import io.opentelemetry.javaagent.instrumentation.netty.common.NettyErrorHolder;
 import io.opentelemetry.javaagent.instrumentation.netty.v4.common.HttpRequestAndChannel;
 
@@ -29,13 +30,17 @@ public final class NettyServerInstrumenterFactory {
             instrumentationName,
             HttpSpanNameExtractor.create(httpAttributesGetter))
         .setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesGetter))
-        .addAttributesExtractor(HttpServerAttributesExtractor.create(httpAttributesGetter))
+        .addAttributesExtractor(
+            HttpServerAttributesExtractor.builder(httpAttributesGetter)
+                .setCapturedRequestHeaders(CommonConfig.get().getServerRequestHeaders())
+                .setCapturedResponseHeaders(CommonConfig.get().getServerResponseHeaders())
+                .build())
         .addAttributesExtractor(
             NetServerAttributesExtractor.create(new NettyNetServerAttributesGetter()))
         .addOperationMetrics(HttpServerMetrics.get())
         .addContextCustomizer((context, request, attributes) -> NettyErrorHolder.init(context))
         .addContextCustomizer(HttpRouteHolder.get())
-        .newServerInstrumenter(HttpRequestHeadersGetter.INSTANCE);
+        .buildServerInstrumenter(HttpRequestHeadersGetter.INSTANCE);
   }
 
   private NettyServerInstrumenterFactory() {}

@@ -14,6 +14,7 @@ import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerAttribut
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerMetrics;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
+import io.opentelemetry.javaagent.bootstrap.internal.CommonConfig;
 import io.opentelemetry.javaagent.instrumentation.akkahttp.AkkaHttpUtil;
 
 public class AkkaHttpServerSingletons {
@@ -28,10 +29,14 @@ public class AkkaHttpServerSingletons {
                 AkkaHttpUtil.instrumentationName(),
                 HttpSpanNameExtractor.create(httpAttributesGetter))
             .setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesGetter))
-            .addAttributesExtractor(HttpServerAttributesExtractor.create(httpAttributesGetter))
+            .addAttributesExtractor(
+                HttpServerAttributesExtractor.builder(httpAttributesGetter)
+                    .setCapturedRequestHeaders(CommonConfig.get().getServerRequestHeaders())
+                    .setCapturedResponseHeaders(CommonConfig.get().getServerResponseHeaders())
+                    .build())
             .addOperationMetrics(HttpServerMetrics.get())
             .addContextCustomizer(HttpRouteHolder.get())
-            .newServerInstrumenter(AkkaHttpServerHeaders.INSTANCE);
+            .buildServerInstrumenter(AkkaHttpServerHeaders.INSTANCE);
   }
 
   public static Instrumenter<HttpRequest, HttpResponse> instrumenter() {

@@ -16,7 +16,6 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.ContextStorage;
 import io.opentelemetry.context.Scope;
-import io.opentelemetry.instrumentation.api.config.Config;
 import io.opentelemetry.instrumentation.api.internal.EmbeddedInstrumentationProperties;
 import io.opentelemetry.javaagent.bootstrap.AgentClassLoader;
 import io.opentelemetry.javaagent.bootstrap.AgentInitializer;
@@ -30,6 +29,7 @@ import io.opentelemetry.javaagent.extension.ignore.IgnoredTypesConfigurer;
 import io.opentelemetry.javaagent.tooling.asyncannotationsupport.WeakRefAsyncOperationEndStrategies;
 import io.opentelemetry.javaagent.tooling.bootstrap.BootstrapPackagesBuilderImpl;
 import io.opentelemetry.javaagent.tooling.bootstrap.BootstrapPackagesConfigurer;
+import io.opentelemetry.javaagent.tooling.bytebuddy.SafeTypeStrategy;
 import io.opentelemetry.javaagent.tooling.config.AgentConfig;
 import io.opentelemetry.javaagent.tooling.config.ConfigPropertiesBridge;
 import io.opentelemetry.javaagent.tooling.ignore.IgnoredClassLoadersMatcher;
@@ -50,11 +50,13 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
+import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.agent.builder.ResettableClassFileTransformer;
 import net.bytebuddy.description.type.TypeDefinition;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.scaffold.MethodGraph;
 import net.bytebuddy.utility.JavaModule;
 
 public class AgentInstaller {
@@ -75,7 +77,9 @@ public class AgentInstaller {
 
   private static final Map<String, List<Runnable>> CLASS_LOAD_CALLBACKS = new HashMap<>();
 
-  public static void installBytebuddyAgent(Instrumentation inst, Config config) {
+  @SuppressWarnings("deprecation") // Config usage, to be removed
+  public static void installBytebuddyAgent(
+      Instrumentation inst, io.opentelemetry.instrumentation.api.config.Config config) {
     addByteBuddyRawSetting();
 
     Integer strictContextStressorMillis = Integer.getInteger(STRICT_CONTEXT_STRESSOR_MILLIS);
@@ -94,15 +98,17 @@ public class AgentInstaller {
     }
   }
 
+  @SuppressWarnings("deprecation") // Config usage, to be removed
   private static void installBytebuddyAgent(
-      Instrumentation inst, Config config, Iterable<AgentListener> agentListeners) {
+      Instrumentation inst,
+      io.opentelemetry.instrumentation.api.config.Config config,
+      Iterable<AgentListener> agentListeners) {
 
     WeakRefAsyncOperationEndStrategies.initialize();
 
     EmbeddedInstrumentationProperties.setPropertiesLoader(
         AgentInitializer.getExtensionsClassLoader());
 
-    setBootstrapPackages(config);
     setDefineClassHandler();
 
     // If noop OpenTelemetry is enabled, autoConfiguredSdk will be null and AgentListeners are not
@@ -113,13 +119,21 @@ public class AgentInstaller {
     InstrumentationConfig.internalInitializeConfig(new ConfigPropertiesBridge(sdkConfig));
     copyNecessaryConfigToSystemProperties(sdkConfig);
 
+    setBootstrapPackages(sdkConfig);
+
     for (BeforeAgentListener agentListener : loadOrdered(BeforeAgentListener.class)) {
       agentListener.beforeAgent(autoConfiguredSdk);
     }
 
     AgentBuilder agentBuilder =
-        new AgentBuilder.Default()
+        new AgentBuilder.Default(
+                // default method graph compiler inspects the class hierarchy, we don't need it, so
+                // we use a simpler and faster strategy instead
+                new ByteBuddy().with(MethodGraph.Compiler.ForDeclaredMethods.INSTANCE))
             .disableClassFormatChanges()
+            // disableClassFormatChanges sets type strategy to TypeStrategy.Default.REDEFINE_FROZEN
+            // we'll wrap it with our own strategy
+            .with(new SafeTypeStrategy(AgentBuilder.TypeStrategy.Default.REDEFINE_FROZEN))
             .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
             .with(new RedefinitionDiscoveryStrategy())
             .with(AgentBuilder.DescriptionStrategy.Default.POOL_ONLY)
@@ -132,7 +146,7 @@ public class AgentInstaller {
 
     agentBuilder = configureIgnoredTypes(sdkConfig, agentBuilder);
 
-    if (AgentConfig.get().isDebugModeEnabled()) {
+    if (AgentConfig.isDebugModeEnabled(sdkConfig)) {
       agentBuilder =
           agentBuilder
               .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
@@ -150,7 +164,7 @@ public class AgentInstaller {
             new Object[] {agentExtension.extensionName(), agentExtension.getClass().getName()});
       }
       try {
-        agentBuilder = agentExtension.extend(agentBuilder);
+        agentBuilder = agentExtension.extend(agentBuilder, sdkConfig);
         numberOfLoadedExtensions++;
       } catch (Exception | LinkageError e) {
         logger.log(
@@ -186,10 +200,10 @@ public class AgentInstaller {
     }
   }
 
-  private static void setBootstrapPackages(Config config) {
+  private static void setBootstrapPackages(ConfigProperties config) {
     BootstrapPackagesBuilderImpl builder = new BootstrapPackagesBuilderImpl();
     for (BootstrapPackagesConfigurer configurer : load(BootstrapPackagesConfigurer.class)) {
-      configurer.configure(config, builder);
+      configurer.configure(builder, config);
     }
     BootstrapPackagePrefixesHolder.setBoostrapPackagePrefixes(builder.build());
   }
@@ -202,7 +216,7 @@ public class AgentInstaller {
       ConfigProperties config, AgentBuilder agentBuilder) {
     IgnoredTypesBuilderImpl builder = new IgnoredTypesBuilderImpl();
     for (IgnoredTypesConfigurer configurer : loadOrdered(IgnoredTypesConfigurer.class)) {
-      configurer.configure(config, builder);
+      configurer.configure(builder, config);
     }
 
     Trie<Boolean> ignoredTasksTrie = builder.buildIgnoredTasksTrie();
@@ -236,7 +250,7 @@ public class AgentInstaller {
     // the application is already setting the global LogManager and AgentListener won't be able
     // to touch it due to class loader locking.
     boolean shouldForceSynchronousAgentListenersCalls =
-        Config.get().getBoolean(FORCE_SYNCHRONOUS_AGENT_LISTENERS_CONFIG, false);
+        autoConfiguredSdk.getConfig().getBoolean(FORCE_SYNCHRONOUS_AGENT_LISTENERS_CONFIG, false);
     boolean javaBefore9 = isJavaBefore9();
     if (!shouldForceSynchronousAgentListenersCalls && javaBefore9 && isAppUsingCustomLogManager()) {
       logger.fine("Custom JUL LogManager detected: delaying AgentListener#afterAgent() calls");

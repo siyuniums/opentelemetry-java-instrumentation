@@ -18,6 +18,7 @@ import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerMetrics;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.net.NetServerAttributesExtractor;
+import io.opentelemetry.javaagent.bootstrap.internal.CommonConfig;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +58,11 @@ public final class ServletInstrumenterBuilder<REQUEST, RESPONSE> {
                 GlobalOpenTelemetry.get(), instrumentationName, spanNameExtractor)
             .setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesGetter))
             .setErrorCauseExtractor(errorCauseExtractor)
-            .addAttributesExtractor(HttpServerAttributesExtractor.create(httpAttributesGetter))
+            .addAttributesExtractor(
+                HttpServerAttributesExtractor.builder(httpAttributesGetter)
+                    .setCapturedRequestHeaders(CommonConfig.get().getServerRequestHeaders())
+                    .setCapturedResponseHeaders(CommonConfig.get().getServerResponseHeaders())
+                    .build())
             .addAttributesExtractor(NetServerAttributesExtractor.create(netAttributesGetter))
             .addAttributesExtractor(additionalAttributesExtractor)
             .addOperationMetrics(HttpServerMetrics.get())
@@ -71,7 +76,7 @@ public final class ServletInstrumenterBuilder<REQUEST, RESPONSE> {
         contextCustomizers) {
       builder.addContextCustomizer(contextCustomizer);
     }
-    return builder.newServerInstrumenter(new ServletRequestGetter<>(accessor));
+    return builder.buildServerInstrumenter(new ServletRequestGetter<>(accessor));
   }
 
   public Instrumenter<ServletRequestContext<REQUEST>, ServletResponseContext<RESPONSE>> build(
