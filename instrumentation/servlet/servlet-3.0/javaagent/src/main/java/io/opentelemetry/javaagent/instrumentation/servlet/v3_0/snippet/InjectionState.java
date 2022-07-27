@@ -71,4 +71,9 @@ public class InjectionState {
   public void setWrapper(SnippetInjectingResponseWrapper wrapper) {
     this.wrapper = wrapper;
   }
+
+  public void reset(SnippetInjectingResponseWrapper wrapper) {
+    headTagBytesSeen = -1;
+    this.wrapper = wrapper;
+  }
 }

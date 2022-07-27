@@ -15,10 +15,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper {
-  private static final String SNIPPET = SnippetHolder.getSnippet();
-  private SnippetInjectingPrintWriter snippetInjectingPrintWriter = null;
-  private static final int SNIPPET_LENGTH = SNIPPET.length();
   public static final String FAKE_SNIPPET_HEADER = "FAKE_SNIPPET_HEADER";
+  private static final String SNIPPET = SnippetHolder.getSnippet();
+  private static final int SNIPPET_LENGTH = SNIPPET.length();
+  private SnippetInjectingPrintWriter snippetInjectingPrintWriter = null;
+  @Nullable private static final MethodHandle setContentLengthLongHandler = getMethodHandle();
 
   public SnippetInjectingResponseWrapper(HttpServletResponse response) {
     super(response);
@@ -63,7 +64,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public void setIntHeader(String name, int value) {
     if (shouldInject() && "Content-Length".equalsIgnoreCase(name)) {
-      value = SNIPPET_LENGTH + value;
+      value += SNIPPET_LENGTH;
     }
     super.setIntHeader(name, value);
   }
@@ -71,7 +72,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public void addIntHeader(String name, int value) {
     if (shouldInject() && "Content-Length".equalsIgnoreCase(name)) {
-      value = SNIPPET_LENGTH + value;
+      value += SNIPPET_LENGTH;
     }
     super.addIntHeader(name, value);
   }
@@ -79,12 +80,10 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public void setContentLength(int len) {
     if (shouldInject()) {
-      len = len + SNIPPET_LENGTH;
+      len += SNIPPET_LENGTH;
     }
     super.setContentLength(len);
   }
-
-  @Nullable private static final MethodHandle setContentLengthLongHandler = getMethodHandle();
 
   @Nullable
   private static MethodHandle getMethodHandle() {
@@ -103,19 +102,18 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
 
   private boolean shouldInject() {
     String contentType = super.getContentType();
-    if (contentType == null || !contentType.contains("text/html")) {
-      return false;
+    if (contentType == null) {
+      contentType = super.getHeader("content-type");
     }
-    String header = super.getHeader("content-type");
-    if (super.containsHeader("content-type") && header != null && header.contains("text/html")) {
-      return true;
+    if (contentType == null || !contentType.startsWith("text/html")) {
+      return false;
     }
     return true;
   }
 
   public void setContentLengthLong(long length) throws Throwable {
     if (shouldInject()) {
-      length = length + SNIPPET_LENGTH;
+      length += SNIPPET_LENGTH;
     }
     if (setContentLengthLongHandler == null) {
       System.out.println("didn't find setContentLengthLong function");
@@ -138,24 +136,20 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
     ServletOutputStream output = super.getOutputStream();
     InjectionState state = getOrCreateInjectionObject(output, getCharacterEncodingHelper());
     if (state.getWrapper() == null || state.getWrapper() != this) { // now I am a new response
-      state.resetHeadTagBytesSeen();
-      state.setWrapper(this);
+      state.reset(this);
     }
     return output;
   }
 
   @Override
   public PrintWriter getWriter() throws IOException {
-    if (shouldInject()) {
-      if (snippetInjectingPrintWriter == null) {
-        snippetInjectingPrintWriter =
-            new SnippetInjectingPrintWriter(
-                super.getWriter(), SNIPPET, getCharacterEncodingHelper());
-      }
-      return snippetInjectingPrintWriter;
-
-    } else {
+    if (!shouldInject()) {
       return super.getWriter();
     }
+    if (snippetInjectingPrintWriter == null) {
+      snippetInjectingPrintWriter =
+          new SnippetInjectingPrintWriter(super.getWriter(), SNIPPET, getCharacterEncodingHelper());
+    }
+    return snippetInjectingPrintWriter;
   }
 }
