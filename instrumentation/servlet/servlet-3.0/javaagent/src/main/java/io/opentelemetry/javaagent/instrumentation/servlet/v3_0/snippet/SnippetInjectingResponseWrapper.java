@@ -150,7 +150,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
       if (snippetInjectingPrintWriter == null) {
         snippetInjectingPrintWriter =
             new SnippetInjectingPrintWriter(
-                super.getWriter(), SNIPPET, getCharacterEncodingHelper(), this);
+                super.getWriter(), SNIPPET, getCharacterEncodingHelper());
       }
       return snippetInjectingPrintWriter;
 

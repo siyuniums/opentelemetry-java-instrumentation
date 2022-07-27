@@ -7,11 +7,7 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
   private final String snippet;
   private InjectionState state = null;
 
-  public SnippetInjectingPrintWriter(
-      PrintWriter writer,
-      String snippet,
-      String characterEncoding,
-      SnippetInjectingResponseWrapper wrapper) {
+  public SnippetInjectingPrintWriter(PrintWriter writer, String snippet, String characterEncoding) {
     super(writer);
     state = new InjectionState(characterEncoding);
     this.snippet = snippet;

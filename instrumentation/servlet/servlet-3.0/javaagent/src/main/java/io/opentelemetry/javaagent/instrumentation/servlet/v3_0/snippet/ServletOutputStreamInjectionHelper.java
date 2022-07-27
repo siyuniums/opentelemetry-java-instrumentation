@@ -8,12 +8,12 @@ import javax.servlet.ServletOutputStream;
 public class ServletOutputStreamInjectionHelper {
 
   /**
-   * return true means this method performed the injection, return false means it didn't inject anything
-   * Servlet3OutputStreamWriteAdvice would skip the write method when the return value is true, and
-   * would write the original bytes when the return value is false.
+   * return true means this method performed the injection, return false means it didn't inject
+   * anything Servlet3OutputStreamWriteAdvice would skip the write method when the return value is
+   * true, and would write the original bytes when the return value is false.
    */
   public static boolean handleWrite(
-      byte[] original, int off, int length, InjectionState state, ServletOutputStream sp)
+      byte[] original, int off, int length, InjectionState state, ServletOutputStream out)
       throws IOException {
     if (state.isAlreadyInjected() || state.getCharacterEncoding() == null) {
       return false;
@@ -26,20 +26,19 @@ public class ServletOutputStreamInjectionHelper {
         break;
       }
     }
-    if (shouldInject) {
-      state.setAlreadyInjected(); // set before write to avoid recursive loop
-      sp.write(original, off, i + 1);
-      try {
-        byte[] snippetBytes = SnippetHolder.getSnippetBytes(state.getCharacterEncoding());
-        sp.write(snippetBytes);
-      } catch (UnsupportedEncodingException ignore) {
-        System.out.println(ignore);
-      }
-      sp.write(original, i + 1, length - i - 1);
-      return true;
-    } else {
+    if (!shouldInject) {
       return false;
     }
+    state.setAlreadyInjected(); // set before write to avoid recursive loop
+    out.write(original, off, i + 1);
+    try {
+      byte[] snippetBytes = SnippetHolder.getSnippetBytes(state.getCharacterEncoding());
+      out.write(snippetBytes);
+    } catch (UnsupportedEncodingException ignore) {
+      System.out.println(ignore);
+    }
+    out.write(original, i + 1, length - i - 1);
+    return true;
   }
 
   public static boolean handleWrite(InjectionState state, ServletOutputStream sp, byte b)
@@ -47,18 +46,17 @@ public class ServletOutputStreamInjectionHelper {
     if (state.isAlreadyInjected() || state.getCharacterEncoding() == null) {
       return false;
     }
-    if (state.processByte(b)) {
-      state.setAlreadyInjected(); // set before write to avoid recursive loop
-      sp.write(b);
-      try {
-        byte[] snippetBytes = SnippetHolder.getSnippetBytes(state.getCharacterEncoding());
-        sp.write(snippetBytes);
-      } catch (UnsupportedEncodingException ignore) {
-        System.out.println(ignore);
-      }
-      return true;
-    } else {
+    if (!state.processByte(b)) {
       return false;
     }
+    state.setAlreadyInjected(); // set before write to avoid recursive loop
+    sp.write(b);
+    try {
+      byte[] snippetBytes = SnippetHolder.getSnippetBytes(state.getCharacterEncoding());
+      sp.write(snippetBytes);
+    } catch (UnsupportedEncodingException ignore) {
+      System.out.println(ignore);
+    }
+    return true;
   }
 }
