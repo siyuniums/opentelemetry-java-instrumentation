@@ -5,12 +5,14 @@
 
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
+import javax.annotation.Nullable;
+
 public class InjectionState {
   private static final int ALREADY_INJECTED_FAKE_VALUE = -1;
   private static final int HEAD_TAG_LENGTH = "<head>".length();
 
   private final String characterEncoding;
-  private SnippetInjectingResponseWrapper wrapper;
+  @Nullable private final SnippetInjectingResponseWrapper wrapper;
   private int headTagBytesSeen = 0;
 
   public InjectionState(SnippetInjectingResponseWrapper wrapper) {
@@ -20,6 +22,7 @@ public class InjectionState {
 
   public InjectionState(String characterEncoding) {
     this.characterEncoding = characterEncoding;
+    this.wrapper = null;
   }
 
   public int getHeadTagBytesSeen() {
