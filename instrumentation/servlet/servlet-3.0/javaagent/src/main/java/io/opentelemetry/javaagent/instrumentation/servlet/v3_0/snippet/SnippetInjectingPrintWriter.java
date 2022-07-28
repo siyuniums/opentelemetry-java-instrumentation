@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 
 public class SnippetInjectingPrintWriter extends PrintWriter {
   private final String snippet;
-  private InjectionState state = null;
+  private final InjectionState state;
 
   public SnippetInjectingPrintWriter(PrintWriter writer, String snippet, String characterEncoding) {
     super(writer);
@@ -26,7 +26,7 @@ public class SnippetInjectingPrintWriter extends PrintWriter {
 
   @Override
   public void write(int b) {
-    boolean shouldInject = state.processByte((byte) b);
+    boolean shouldInject = state.processByte(b);
     super.write(b);
     if (shouldInject) {
       // set before write to avoid recursive loop since super.write(String) may delegate back to

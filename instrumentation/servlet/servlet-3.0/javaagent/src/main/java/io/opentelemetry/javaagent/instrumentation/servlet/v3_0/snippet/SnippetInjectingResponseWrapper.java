@@ -5,8 +5,8 @@
 
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
-import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.getOrCreateInjectionObject;
-import static java.util.logging.Level.WARNING;
+import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.initializeInjectionObjectIfNeeded;
+import static java.util.logging.Level.FINE;
 
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
       try {
         value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
       } catch (NumberFormatException ex) {
-        logger.log(WARNING, "NumberFormatException", ex);
+        logger.log(FINE, "NumberFormatException", ex);
       }
     }
     super.setHeader(name, value);
@@ -66,7 +66,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
       try {
         value = Integer.toString(SNIPPET_LENGTH + Integer.valueOf(value));
       } catch (NumberFormatException ex) {
-        logger.log(WARNING, "Invalid string format", ex);
+        logger.log(FINE, "Invalid string format", ex);
       }
     }
     super.addHeader(name, value);
@@ -106,7 +106,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
               MethodType.methodType(void.class),
               SnippetInjectingResponseWrapper.class);
     } catch (NoSuchMethodException | IllegalAccessException e) {
-      logger.log(WARNING, "SnippetInjectingResponseWrapper setContentLengthLong", e);
+      logger.log(FINE, "SnippetInjectingResponseWrapper setContentLengthLong", e);
       return null;
     }
   }
@@ -116,10 +116,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
     if (contentType == null) {
       contentType = super.getHeader("content-type");
     }
-    if (contentType == null || !contentType.startsWith("text/html")) {
-      return false;
-    }
-    return true;
+    return contentType != null && contentType.startsWith("text/html");
   }
 
   public void setContentLengthLong(long length) throws Throwable {
@@ -136,8 +133,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public ServletOutputStream getOutputStream() throws IOException {
     ServletOutputStream output = super.getOutputStream();
-    InjectionState state = getOrCreateInjectionObject(output, super.getCharacterEncoding(), this);
-
+    initializeInjectionObjectIfNeeded(output, super.getCharacterEncoding(), this);
     return output;
   }
 

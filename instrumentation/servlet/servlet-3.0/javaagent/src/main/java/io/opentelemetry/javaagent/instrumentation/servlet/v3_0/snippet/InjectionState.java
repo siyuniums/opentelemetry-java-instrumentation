@@ -13,6 +13,11 @@ public class InjectionState {
   private SnippetInjectingResponseWrapper wrapper;
   private int headTagBytesSeen = 0;
 
+  public InjectionState(SnippetInjectingResponseWrapper wrapper) {
+    this.wrapper = wrapper;
+    this.characterEncoding = wrapper.getCharacterEncoding();
+  }
+
   public InjectionState(String characterEncoding) {
     this.characterEncoding = characterEncoding;
   }
@@ -22,11 +27,7 @@ public class InjectionState {
   }
 
   public String getCharacterEncoding() {
-    return this.characterEncoding;
-  }
-
-  public SnippetInjectingResponseWrapper getWrapper() {
-    return wrapper;
+    return characterEncoding;
   }
 
   public void setAlreadyInjected() {
@@ -36,6 +37,7 @@ public class InjectionState {
   public boolean isAlreadyInjected() {
     return headTagBytesSeen == ALREADY_INJECTED_FAKE_VALUE;
   }
+
   /**
    * Returns true when the byte is the last character of "<head>" and now is the right time to
    * inject. Otherwise, returns false.
@@ -44,7 +46,7 @@ public class InjectionState {
     if (isAlreadyInjected()) {
       return false;
     }
-    if (stillInHeadTag(b)) {
+    if (inHeadTag(b)) {
       headTagBytesSeen++;
     } else {
       headTagBytesSeen = 0;
@@ -52,7 +54,7 @@ public class InjectionState {
     return headTagBytesSeen == HEAD_TAG_LENGTH;
   }
 
-  private boolean stillInHeadTag(int b) {
+  private boolean inHeadTag(int b) {
     if (headTagBytesSeen == 0 && b == '<') {
       return true;
     } else if (headTagBytesSeen == 1 && b == 'h') {
@@ -67,5 +69,9 @@ public class InjectionState {
       return true;
     }
     return false;
+  }
+
+  public SnippetInjectingResponseWrapper getWrapper() {
+    return wrapper;
   }
 }

@@ -10,24 +10,22 @@ import javax.servlet.ServletOutputStream;
 
 public class Injection {
 
-  public static InjectionState getOrCreateInjectionObject(
+  public static void initializeInjectionObjectIfNeeded(
       ServletOutputStream servletOutputStream,
       String characterEncoding,
       SnippetInjectingResponseWrapper wrapper) {
 
     InjectionState state =
         VirtualField.find(ServletOutputStream.class, InjectionState.class).get(servletOutputStream);
-    if (state == null || state.getWrapper() == null || state.getWrapper() != wrapper) {
-      state = new InjectionState(characterEncoding);
+    if (state == null || state.getWrapper() != wrapper) {
+      state = new InjectionState(wrapper);
       VirtualField.find(ServletOutputStream.class, InjectionState.class)
           .set(servletOutputStream, state);
     }
-    return state;
   }
 
   public static InjectionState getInjectionObject(ServletOutputStream servletOutputStream) {
-    InjectionState state =
-        VirtualField.find(ServletOutputStream.class, InjectionState.class).get(servletOutputStream);
-    return state;
+    return VirtualField.find(ServletOutputStream.class, InjectionState.class)
+        .get(servletOutputStream);
   }
 }
