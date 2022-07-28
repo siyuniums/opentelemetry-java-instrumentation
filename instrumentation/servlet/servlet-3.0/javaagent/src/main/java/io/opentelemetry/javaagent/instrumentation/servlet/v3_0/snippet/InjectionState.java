@@ -37,8 +37,8 @@ public class InjectionState {
     return headTagBytesSeen == ALREADY_INJECTED_FAKE_VALUE;
   }
   /**
-   * return false means injected happened, no need to monitor head tag any more return; return true
-   * means "<head>" has shown and now is the right time to inject
+   * Returns true when the byte is the last character of "<head>" and now is the right time to
+   * inject. Otherwise, returns false.
    */
   public boolean processByte(int b) {
     if (isAlreadyInjected()) {
@@ -67,10 +67,5 @@ public class InjectionState {
       return true;
     }
     return false;
-  }
-
-  public void reset(SnippetInjectingResponseWrapper wrapper) {
-    headTagBytesSeen = 0;
-    this.wrapper = wrapper;
   }
 }

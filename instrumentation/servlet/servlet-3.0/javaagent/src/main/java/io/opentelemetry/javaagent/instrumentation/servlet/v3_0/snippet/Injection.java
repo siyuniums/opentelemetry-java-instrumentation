@@ -11,11 +11,13 @@ import javax.servlet.ServletOutputStream;
 public class Injection {
 
   public static InjectionState getOrCreateInjectionObject(
-      ServletOutputStream servletOutputStream, String characterEncoding) {
+      ServletOutputStream servletOutputStream,
+      String characterEncoding,
+      SnippetInjectingResponseWrapper wrapper) {
 
     InjectionState state =
         VirtualField.find(ServletOutputStream.class, InjectionState.class).get(servletOutputStream);
-    if (state == null) {
+    if (state == null || state.getWrapper() == null || state.getWrapper() != wrapper) {
       state = new InjectionState(characterEncoding);
       VirtualField.find(ServletOutputStream.class, InjectionState.class)
           .set(servletOutputStream, state);
