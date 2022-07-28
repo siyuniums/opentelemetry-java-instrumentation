@@ -5,7 +5,7 @@
 
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
-import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.initializeInjectionObjectIfNeeded;
+import static io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet.Injection.initializeInjectionStateIfNeeded;
 import static java.util.logging.Level.FINE;
 
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
@@ -111,7 +111,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
     }
   }
 
-  private boolean isContentTypeTextHtml() {
+  public boolean isContentTypeTextHtml() {
     String contentType = super.getContentType();
     if (contentType == null) {
       contentType = super.getHeader("content-type");
@@ -133,7 +133,7 @@ public class SnippetInjectingResponseWrapper extends HttpServletResponseWrapper 
   @Override
   public ServletOutputStream getOutputStream() throws IOException {
     ServletOutputStream output = super.getOutputStream();
-    initializeInjectionObjectIfNeeded(output, super.getCharacterEncoding(), this);
+    initializeInjectionStateIfNeeded(output, this);
     return output;
   }
 

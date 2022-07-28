@@ -9,23 +9,21 @@ import io.opentelemetry.instrumentation.api.util.VirtualField;
 import javax.servlet.ServletOutputStream;
 
 public class Injection {
+  private static final VirtualField<ServletOutputStream, InjectionState> virtualField =
+      VirtualField.find(ServletOutputStream.class, InjectionState.class);
 
-  public static void initializeInjectionObjectIfNeeded(
-      ServletOutputStream servletOutputStream,
-      String characterEncoding,
-      SnippetInjectingResponseWrapper wrapper) {
-
-    InjectionState state =
-        VirtualField.find(ServletOutputStream.class, InjectionState.class).get(servletOutputStream);
+  public static void initializeInjectionStateIfNeeded(
+      ServletOutputStream servletOutputStream, SnippetInjectingResponseWrapper wrapper) {
+    InjectionState state = virtualField.get(servletOutputStream);
     if (state == null || state.getWrapper() != wrapper) {
       state = new InjectionState(wrapper);
-      VirtualField.find(ServletOutputStream.class, InjectionState.class)
-          .set(servletOutputStream, state);
+      if (wrapper.isContentTypeTextHtml()) {
+        virtualField.set(servletOutputStream, state);
+      }
     }
   }
 
-  public static InjectionState getInjectionObject(ServletOutputStream servletOutputStream) {
-    return VirtualField.find(ServletOutputStream.class, InjectionState.class)
-        .get(servletOutputStream);
+  public static InjectionState getInjectionState(ServletOutputStream servletOutputStream) {
+    return virtualField.get(servletOutputStream);
   }
 }
