@@ -5,12 +5,17 @@
 
 package io.opentelemetry.javaagent.instrumentation.servlet.v3_0.snippet;
 
+import static java.util.logging.Level.WARNING;
+
 import io.opentelemetry.javaagent.bootstrap.servlet.SnippetHolder;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.logging.Logger;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 public class ServletOutputStreamInjectionHelper {
+  private static final Logger logger = Logger.getLogger(HttpServletResponseWrapper.class.getName());
 
   /**
    * return true means this method performed the injection, return false means it didn't inject
@@ -40,7 +45,7 @@ public class ServletOutputStreamInjectionHelper {
       byte[] snippetBytes = SnippetHolder.getSnippetBytes(state.getCharacterEncoding());
       out.write(snippetBytes);
     } catch (UnsupportedEncodingException ignore) {
-      System.out.println(ignore);
+      logger.log(WARNING, "UnsupportedEncodingException", ignore);
     }
     out.write(original, i + 1, length - i - 1);
     return true;
@@ -60,7 +65,7 @@ public class ServletOutputStreamInjectionHelper {
       byte[] snippetBytes = SnippetHolder.getSnippetBytes(state.getCharacterEncoding());
       out.write(snippetBytes);
     } catch (UnsupportedEncodingException ignore) {
-      System.out.println(ignore);
+      logger.log(WARNING, "UnsupportedEncodingException", ignore);
     }
     return true;
   }
